@@ -72,10 +72,10 @@ export default async function handler(req, res) {
   const LBT_TOKEN = process.env.LBT_API_TOKEN;
   const CMS_TOKEN = process.env.CMS_API_TOKEN;
 
-  if (!OM_TOKEN || !LBT_TOKEN || !CMS_TOKEN) {
+  if (!OM_TOKEN || !LBT_TOKEN || !CMS_TOKEN || !REPORTING_TOKEN) {
     return res.status(500).json({
       ok: false,
-      error: `Missing env vars: ${!OM_TOKEN?"OM_API_TOKEN ":""}${!LBT_TOKEN?"LBT_API_TOKEN ":""}${!CMS_TOKEN?"CMS_API_TOKEN":""}`
+      error: `Missing env vars: ${!OM_TOKEN?"OM_API_TOKEN ":""}${!LBT_TOKEN?"LBT_API_TOKEN ":""}${!CMS_TOKEN?"CMS_API_TOKEN ":""}${!REPORTING_TOKEN?"REPORTING_API_TOKEN":""}`
     });
   }
 
@@ -154,7 +154,23 @@ export default async function handler(req, res) {
     }
 
     // ══════════════════════════════════════════
-    //  4. BUILD RESPONSE
+    //  4. REPORTING BASE — Company quotas
+    // ══════════════════════════════════════════
+    const reportingAccess = await getAccess(REPORTING_TOKEN);
+    const reportingRows   = await listRows(reportingAccess, "QUOTAS", "");
+    const companyQuotas   = {};
+    for (const row of reportingRows) {
+      const client   = resolve(row["\u{1F539}Client"] || row["Client"]);
+      const monthVal = row["\u{1F539}Month"] || row["Month"] || "";
+      const quotaVal = row["\u{1F539} Monthly LV Quota"] || 0;
+      if (!client || !monthVal) continue;
+      if (monthVal.trim().toLowerCase() === monthShort.toLowerCase()) {
+        companyQuotas[client] = parseFloat(quotaVal) || 0;
+      }
+    }
+
+    // ══════════════════════════════════════════
+    //  5. BUILD RESPONSE
     // ══════════════════════════════════════════
     const allClients = [...new Set([...Object.keys(internal), ...Object.keys(quotas)])].sort();
 
@@ -163,7 +179,8 @@ export default async function handler(req, res) {
       const intData = internal[name] || {};
       const extPub  = LBT_CLIENTS.includes(name) ? Math.round((external[name] || 0) * 100) / 100 : 0;
       const journ   = name === PRESS_CLIENT ? Math.round(journalists * 100) / 100 : 0;
-      const row     = { client: name, quota, ext_published: extPub, journalists: journ };
+      const companyQuota = companyQuotas[name] || 0;
+      const row     = { client: name, quota, company_quota: companyQuota, ext_published: extPub, journalists: journ };
       for (const s of ALL_STATUSES) row[s] = Math.round((intData[s] || 0) * 100) / 100;
       return row;
     });
@@ -178,6 +195,7 @@ export default async function handler(req, res) {
         lbt_rows: lbtRows.length,
         cms_rows: cmsRows.length,
         internal_clients: Object.keys(internal).length,
+        company_quotas_loaded: Object.keys(companyQuotas).length,
         journalists_total: Math.round(journalists * 100) / 100
       },
       clients
