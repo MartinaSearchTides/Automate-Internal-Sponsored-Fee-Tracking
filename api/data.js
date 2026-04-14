@@ -1,6 +1,6 @@
 const SERVER = "https://seatable.searchtides.com";
 
-const BTF = ["Published", "Pending", "Content Requested", "Ready for Delivery"];
+const BTF = ["Published", "Pending", "Content Requested", "Ready for Delivery", "Revisions Requested"];
 const TOP = ["Site Approved", "Negotiation"];
 const ALL_STATUSES = [...BTF, ...TOP];
 const LBT_CLIENTS  = ["FanDuel", "FanDuel Casino", "FanDuel Racing", "CreditNinja"];
