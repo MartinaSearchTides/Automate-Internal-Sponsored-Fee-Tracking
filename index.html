@@ -428,18 +428,18 @@ function renderSponsoredSummary(totals) {
   var avg = totals.avg_sponsored_fee !== null ? totals.avg_sponsored_fee.toFixed(2) : "—";
   el.innerHTML =
     '<div class="sum-tile"><div class="sum-label">Cost per LV</div><div class="sum-value sv-purple">' + eff +
-    '</div><div class="sum-sub">Σ Final $ ÷ Σ LV</div></div>' +
+    '</div><div class="sum-sub">SUM Final $ ÷ SUM LV</div></div>' +
     '<div class="sum-tile"><div class="sum-label">Avg cost per link</div><div class="sum-value sv-dollar">$' + avg +
-    '</div><div class="sum-sub">Σ Final $ ÷ count</div></div>' +
+    '</div><div class="sum-sub">SUM Final $ ÷ count</div></div>' +
     '<div class="sum-tile"><div class="sum-label">Links (priced)</div><div class="sum-value sv-teal">' + fmt(totals.count) +
-    '</div><div class="sum-sub">BOF with FINAL $ filled</div></div>' +
-    '<div class="sum-tile"><div class="sum-label">Σ Final $</div><div class="sum-value sv-dollar">' + fmtMoney(totals.sum_final_usd) +
+    '</div><div class="sum-sub">BTF with FINAL $ filled</div></div>' +
+    '<div class="sum-tile"><div class="sum-label">SUM Final $</div><div class="sum-value sv-dollar">' + fmtMoney(totals.sum_final_usd) +
     '</div><div class="sum-sub">Total cost, all clients</div></div>' +
-    '<div class="sum-tile"><div class="sum-label">Σ LV</div><div class="sum-value sv-teal">' + fmt(totals.sum_lv) +
+    '<div class="sum-tile"><div class="sum-label">SUM LV</div><div class="sum-value sv-teal">' + fmt(totals.sum_lv) +
     '</div><div class="sum-sub">Total value (priced only)</div></div>';
   if (foot) {
     foot.textContent =
-      "Bottom-of-funnel (BOF) rows with filled FINAL $ only. FINAL $ may be $0 (free placement). Data: HSS SeaTable OM.";
+      "Bottom-of-funnel (BTF) statuses: Published, Pending, Content Requested, Ready for Delivery, Revisions Requested. Only rows with filled FINAL $ (may be $0 for free placement). Data: HSS SeaTable OM.";
   }
 }
 
@@ -459,10 +459,10 @@ function renderInternal(clients) {
     card.innerHTML =
       '<div class="card-header"><div class="client-name">' + esc(c.client) + '</div></div>' +
       '<div class="sponsored-metrics-card">' +
-        '<div class="spm-item"><div class="spm-label">Cost per LV</div><div class="spm-value ' + (has ? "spm-ratio" : "spm-na") + '">' + effRatio + '</div><div class="spm-sub">Σ Final $ ÷ Σ LV</div></div>' +
-        '<div class="spm-item"><div class="spm-label">Avg cost per link</div><div class="spm-value ' + (has ? "" : "spm-na") + '">$' + avgFee + '</div><div class="spm-sub">Σ Final $ ÷ count</div></div>' +
-        '<div class="spm-item"><div class="spm-label">Σ Final $</div><div class="spm-value">' + (has ? fmtMoney(sp.sum_final_usd) : "—") + '</div><div class="spm-sub">Total cost</div></div>' +
-        '<div class="spm-item"><div class="spm-label">Links (priced)</div><div class="spm-value spm-count">' + fmt(sp.count) + '</div><div class="spm-sub">BOF with FINAL $</div></div>' +
+        '<div class="spm-item"><div class="spm-label">Cost per LV</div><div class="spm-value ' + (has ? "spm-ratio" : "spm-na") + '">' + effRatio + '</div><div class="spm-sub">SUM Final $ ÷ SUM LV</div></div>' +
+        '<div class="spm-item"><div class="spm-label">Avg cost per link</div><div class="spm-value ' + (has ? "" : "spm-na") + '">$' + avgFee + '</div><div class="spm-sub">SUM Final $ ÷ count</div></div>' +
+        '<div class="spm-item"><div class="spm-label">SUM Final $</div><div class="spm-value">' + (has ? fmtMoney(sp.sum_final_usd) : "—") + '</div><div class="spm-sub">Total cost</div></div>' +
+        '<div class="spm-item"><div class="spm-label">Links (priced)</div><div class="spm-value spm-count">' + fmt(sp.count) + '</div><div class="spm-sub">BTF with FINAL $</div></div>' +
       '</div>';
     grid.appendChild(card);
   });
