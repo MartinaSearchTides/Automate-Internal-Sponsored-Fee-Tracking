@@ -476,11 +476,13 @@ function renderTeamPerformance(perf, tableId, dataKey, formatType) {
   months.forEach(function(m) {
     thead += '<th>' + esc(m) + '</th>';
   });
-  thead += '</tr></thead>';
+  thead += '<th class="total-col">Total</th></tr></thead>';
   
   var tbody = '<tbody>';
   members.forEach(function(member) {
     tbody += '<tr><td>' + esc(member) + '</td>';
+    var rowTotal = 0;
+    var rowCount = 0;
     months.forEach(function(m) {
       var val = (data[member] && data[member][m]) ? data[member][m] : 0;
       var cls = val === 0 ? ' class="zero"' : '';
@@ -489,15 +491,36 @@ function renderTeamPerformance(perf, tableId, dataKey, formatType) {
         display = '—';
       } else if (formatType === "money") {
         display = fmtMoney(val);
+        rowTotal += val;
+        rowCount++;
       } else if (formatType === "ratio") {
         display = fmtRatio(val);
+        rowTotal += val;
+        rowCount++;
       } else if (formatType === true) {
         display = fmt(Math.round(val));
+        rowTotal += val;
+        rowCount++;
       } else {
         display = val;
+        rowTotal += val;
+        rowCount++;
       }
       tbody += '<td' + cls + '>' + display + '</td>';
     });
+    var totalDisplay;
+    if (rowCount === 0) {
+      totalDisplay = '—';
+    } else if (formatType === "money") {
+      totalDisplay = fmtMoney(rowTotal);
+    } else if (formatType === "ratio") {
+      totalDisplay = fmtRatio(rowTotal / rowCount);
+    } else if (formatType === true) {
+      totalDisplay = fmt(Math.round(rowTotal));
+    } else {
+      totalDisplay = fmt(rowTotal);
+    }
+    tbody += '<td class="total-col"><strong>' + totalDisplay + '</strong></td>';
     tbody += '</tr>';
   });
   tbody += '</tbody>';
