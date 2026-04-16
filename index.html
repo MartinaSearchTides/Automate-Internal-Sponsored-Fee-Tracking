@@ -83,12 +83,6 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 .pip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .pip-ok   { background: var(--green); }
 .pip-warn { background: var(--orange); }
-.pipeline-badge { background: var(--surface3); border: 1px solid var(--border2); border-radius: 5px; padding: 10px 16px; margin-top: 12px; display: flex; align-items: center; gap: 10px; }
-.pipeline-badge .pip-dot { width: 10px; height: 10px; }
-.pipeline-text { font-size: 13px; font-family: var(--fm); color: var(--text); font-weight: 500; }
-.pipeline-status { font-weight: 600; }
-.pipeline-status.covered { color: var(--green); }
-.pipeline-status.not-covered { color: var(--orange); }
 
 .summary-sponsored-wrap { margin-bottom: 1.75rem; }
 .summary-sponsored-title {
@@ -103,22 +97,7 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 .sv-dollar { color: var(--text); }
 .sum-sub { font-size: 11px; font-family: var(--fm); color: var(--muted); margin-top: 8px; font-weight: 400; letter-spacing: 0; text-transform: none; }
 
-.sponsored-strip {
-  border-top: 1px solid var(--border);
-  padding: 16px 22px 18px;
-  background: linear-gradient(180deg, rgba(14,158,128,0.04) 0%, var(--surface) 100%);
-}
-.sponsored-strip-head {
-  font-size: 9px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; font-family: var(--fm);
-  color: var(--teal); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
-}
-.sponsored-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 16px; }
-.sponsored-metric-label { font-size: 10px; font-family: var(--fm); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-.sponsored-metric-val { font-family: var(--fd); font-size: 20px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
-.sponsored-metric-val.em { color: var(--purple); }
-.sponsored-metric-val.na { color: var(--muted); font-size: 15px; font-weight: 600; font-family: var(--fm); }
-
-.clients-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
+.sponsored-strip { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
 
 .client-card { background: var(--surface); display: flex; flex-direction: column; }
 .client-card:hover { background: var(--surface2); }
@@ -127,43 +106,22 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 
 .card-header { padding: 20px 24px 16px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); }
 .client-name { font-family: var(--fd); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
-.quota-pill { font-size: 12px; font-family: var(--fm); color: var(--muted2); background: var(--surface3); border: 1px solid var(--border2); padding: 4px 10px; border-radius: 3px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.quota-pill strong { color: var(--text); font-weight: 500; }
-.progress-wrap { padding: 13px 24px 15px; border-bottom: 1px solid var(--border); }
-.progress-labels { display: flex; justify-content: space-between; font-size: 11px; font-family: var(--fm); color: var(--muted); margin-bottom: 7px; font-variant-numeric: tabular-nums; }
-.progress-pct { font-weight: 500; }
-.ppc-red    { color: var(--red); }
-.ppc-orange { color: var(--orange); }
-.ppc-green  { color: var(--green); }
-.progress-track { height: 3px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 99px; transition: width 0.7s cubic-bezier(0.16,1,0.3,1); }
-.pf-red    { background: var(--red); }
-.pf-orange { background: var(--orange); }
-.pf-green  { background: var(--green); }
 
-.funnels { display: grid; grid-template-columns: 3fr 2fr; flex: 1; }
-.funnel-col { padding: 18px 22px 22px; }
-.funnel-col:first-child { border-right: 1px solid var(--border); }
-.funnel-heading { font-size: 9px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; font-family: var(--fm); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-.fh-btf { color: var(--teal); }
-.fh-top { color: var(--purple); }
-.funnel-total { font-family: var(--fd); font-size: 42px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; margin-bottom: 14px; font-variant-numeric: tabular-nums; }
-.ft-btf { color: var(--teal); }
-.ft-top { color: var(--purple); }
-.status-list { display: flex; flex-direction: column; gap: 8px; }
-.status-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.s-name { font-size: 12px; font-family: var(--fm); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.s-name-pub { color: var(--teal); font-weight: 500; }
-.s-val { font-size: 13px; font-family: var(--fm); font-weight: 500; color: var(--text); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
-.s-val-pub { color: var(--teal); font-weight: 600; font-size: 15px; }
+.sponsored-metrics-card { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); }
+.spm-item { background: var(--surface); padding: 18px 22px; transition: background 0.15s; }
+.spm-item:hover { background: var(--surface2); }
+.spm-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; font-family: var(--fm); }
+.spm-value { font-family: var(--fd); font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--text); }
+.spm-value.spm-ratio { color: var(--purple); }
+.spm-value.spm-count { color: var(--teal); }
+.spm-value.spm-na { color: var(--muted); font-size: 20px; }
+.spm-sub { font-size: 11px; font-family: var(--fm); color: var(--muted); margin-top: 6px; }
 
 @media (max-width: 900px) {
   .clients-grid { grid-template-columns: 1fr; }
   .summary-bar  { grid-template-columns: repeat(2,1fr); }
   .summary-bar.summary-sponsored { grid-template-columns: repeat(2, 1fr); }
-  .sponsored-metrics { grid-template-columns: repeat(2, 1fr); }
-  .funnels      { grid-template-columns: 1fr; }
-  .funnel-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+  .sponsored-metrics-card { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
@@ -175,28 +133,17 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
   .refresh-btn { font-size: 10px; padding: 5px 10px; }
   .summary-bar { grid-template-columns: 1fr; }
   .summary-bar.summary-sponsored { grid-template-columns: 1fr; }
-  .sponsored-metrics { grid-template-columns: 1fr; }
+  .sponsored-metrics-card { grid-template-columns: 1fr; }
   .sum-tile { padding: 1rem 1.2rem; }
   .sum-label { font-size: 9px; }
   .sum-value { font-size: 26px; }
   .pipeline-indicator { font-size: 9px; }
   .card-header { padding: 16px 18px 14px; flex-wrap: wrap; gap: 8px; }
   .client-name { font-size: 19px; }
-  .quota-pill { font-size: 11px; padding: 3px 8px; }
-  .progress-wrap { padding: 11px 18px 13px; }
-  .progress-labels { font-size: 10px; }
-  .funnels { grid-template-columns: 1fr; }
-  .funnel-col { padding: 14px 18px 18px; }
-  .funnel-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
-  .funnel-heading { font-size: 8px; }
-  .funnel-total { font-size: 34px; letter-spacing: -1px; }
-  .status-row { gap: 6px; }
-  .s-name { font-size: 11px; }
-  .s-val { font-size: 12px; }
-  .s-val-pub { font-size: 14px; }
-  .pipeline-badge { padding: 8px 12px; margin-top: 10px; }
-  .pipeline-text { font-size: 11px; }
-  .pipeline-badge .pip-dot { width: 8px; height: 8px; }
+  .spm-item { padding: 14px 18px; }
+  .spm-label { font-size: 9px; }
+  .spm-value { font-size: 22px; }
+  .spm-sub { font-size: 10px; }
   .load-title { font-size: 36px; text-align: center; }
   .load-wordmark { font-size: 11px; }
 }
@@ -225,11 +172,10 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
     </div>
   </div>
   <div class="dashboard-body">
-    <div class="summary-bar" id="summary-internal"></div>
     <div class="summary-sponsored-wrap">
       <div class="summary-sponsored-title">
         <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>
-        Internal sponsored fees (BOF, priced rows only)
+        Internal sponsored fees — all clients
       </div>
       <div class="summary-bar summary-sponsored" id="summary-sponsored-internal"></div>
       <p class="sponsored-footnote" id="sponsored-footnote-internal"></p>
@@ -239,8 +185,6 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 </div>
 
 <script>
-var BTF = ["Published","Pending","Content Requested","Ready for Delivery","Revisions Requested"];
-var TOP = ["Site Approved","Negotiation"];
 var globalClients = [];
 var globalSponsoredTotals = null;
 
@@ -256,9 +200,6 @@ function fmtRatio(v) {
   if (v === null || v === undefined || isNaN(v)) return "—";
   return Number(v).toFixed(4);
 }
-function pct(val, total) { return total > 0 ? Math.round(val / total * 100) : 0; }
-function pcClass(p) { return p < 50 ? "red" : p < 90 ? "orange" : "green"; }
-function sumClass(pc) { return pc === "red" ? "sv-over" : pc === "orange" ? "sv-warn" : "sv-ok"; }
 function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 async function loadData() {
@@ -329,89 +270,33 @@ function renderSponsoredSummary(totals) {
     '<div class="sum-tile"><div class="sum-label">Priced BOF links</div><div class="sum-value sv-teal">' + fmt(totals.count) +
     '</div><div class="sum-sub">Rows with FINAL $ filled</div></div>' +
     '<div class="sum-tile"><div class="sum-label">Σ Final $</div><div class="sum-value sv-dollar">' + fmtMoney(totals.sum_final_usd) +
-    '</div><div class="sum-sub">All clients, ' + esc(BTF.join(", ")) + '</div></div>' +
+    '</div><div class="sum-sub">All clients</div></div>' +
     '<div class="sum-tile"><div class="sum-label">Σ LV (priced)</div><div class="sum-value sv-teal">' + fmt(totals.sum_lv) +
     '</div><div class="sum-sub">Same rows as cost</div></div>';
   if (foot) {
     foot.textContent =
-      "BOF statuses: " + BTF.join(", ") + ". Rows without a filled FINAL $ are excluded from these sums and counts; FINAL $ may be $0 (e.g. free placement). Internal HSS data only (HSS SeaTable OM).";
+      "Bottom-of-funnel (BOF) rows with filled FINAL $ only. FINAL $ may be $0 (free placement). Data: HSS SeaTable OM.";
   }
-}
-
-function renderSponsoredStrip(sp) {
-  if (!sp) sp = { sum_lv: 0, sum_final_usd: 0, count: 0, efficiency_ratio: null, avg_sponsored_fee: null };
-  var has = sp.count > 0;
-  var effCls = "sponsored-metric-val em";
-  var avgCls = "sponsored-metric-val sv-dollar";
-  if (!has) {
-    effCls = "sponsored-metric-val na";
-    avgCls = "sponsored-metric-val na";
-  }
-  return (
-    '<div class="sponsored-strip">' +
-      '<div class="sponsored-strip-head">' +
-        '<svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>' +
-        "Sponsored fees (priced BOF)" +
-      "</div>" +
-      '<div class="sponsored-metrics">' +
-        '<div><div class="sponsored-metric-label">Efficiency ratio</div><div class="' + effCls + '">' + fmtRatio(sp.efficiency_ratio) + "</div></div>" +
-        '<div><div class="sponsored-metric-label">Avg fee / link</div><div class="' + avgCls + '">' + (has ? fmtMoney(sp.avg_sponsored_fee) : "—") + "</div></div>" +
-        '<div><div class="sponsored-metric-label">Σ Final $</div><div class="sponsored-metric-val">' + (has ? fmtMoney(sp.sum_final_usd) : "—") + "</div></div>" +
-        '<div><div class="sponsored-metric-label">Links (priced)</div><div class="sponsored-metric-val">' + fmt(sp.count) + "</div></div>" +
-      "</div>" +
-    "</div>"
-  );
 }
 
 function renderInternal(clients) {
-  var totPub=0, totBTF=0, totTop=0, totQ=0;
+  var grid = document.getElementById("grid-internal");
+  grid.innerHTML = "";
+  
   clients.forEach(function(c) {
-    totPub += n(c["Published"]);
-    BTF.forEach(function(s) { totBTF += n(c[s]); });
-    TOP.forEach(function(s) { totTop += n(c[s]); });
-    totQ += n(c["quota"]);
-  });
-  var op=pct(totPub,totQ), pc=pcClass(op);
-  var pipeline=totBTF+totTop, pipOk=pipeline>=totQ, pipPct=pct(pipeline,totQ);
-
-  document.getElementById("summary-internal").innerHTML =
-    '<div class="sum-tile"><div class="sum-label">Published total</div><div class="sum-value sv-teal">'+fmt(totPub)+'</div></div>'+
-    '<div class="sum-tile"><div class="sum-label">BTF total (published incl.)</div><div class="sum-value sv-teal">'+fmt(totBTF)+'</div></div>'+
-    '<div class="sum-tile"><div class="sum-label">Top Funnel total</div><div class="sum-value sv-purple">'+fmt(totTop)+'</div></div>'+
-    '<div class="sum-tile"><div class="sum-label">Internal quota</div><div class="sum-value sv-neutral">'+fmt(totQ)+'</div>'+
-      '<div class="pipeline-indicator"><div class="pip-dot '+(pipOk?"pip-ok":"pip-warn")+'"></div>Pipeline '+fmt(pipeline)+' - '+pipPct+'% '+(pipOk?"covered":"not yet")+'</div></div>'+
-    '<div class="sum-tile"><div class="sum-label">Quota attainment</div><div class="sum-value '+sumClass(pc)+'">'+op+'%</div></div>';
-
-  var grid=document.getElementById("grid-internal");
-  grid.innerHTML="";
-  clients.forEach(function(c) {
-    var quota=n(c["quota"]), pub=n(c["Published"]);
-    var btfTotal=BTF.reduce(function(s,k){return s+n(c[k]);},0);
-    var topTotal=TOP.reduce(function(s,k){return s+n(c[k]);},0);
-    var pipeline=btfTotal+topTotal, pipOk=pipeline>=quota, pipPct=pct(pipeline,quota);
-    var p=pct(pub,quota), pc=pcClass(p);
-
-    var btfRows=BTF.map(function(s){
-      var v=n(c[s]), isPub=(s==="Published");
-      return '<div class="status-row"><span class="s-name'+(isPub?" s-name-pub":"")+'">'+s+'</span><span class="s-val'+(isPub?" s-val-pub":"")+'">'+fmt(v)+'</span></div>';
-    }).join("");
-    var topRows=TOP.map(function(s){
-      return '<div class="status-row"><span class="s-name">'+s+'</span><span class="s-val">'+fmt(n(c[s]))+'</span></div>';
-    }).join("");
-
-    var card=document.createElement("div"); card.className="client-card";
-    card.innerHTML=
-      '<div class="card-header"><div class="client-name">'+esc(c["client"])+'</div><div class="quota-pill">quota <strong>'+fmt(quota)+'</strong></div></div>'+
-      '<div class="progress-wrap">'+
-        '<div class="progress-labels"><span>Published vs quota</span><span class="progress-pct ppc-'+pc+'">'+p+'%</span></div>'+
-        '<div class="progress-track"><div class="progress-fill pf-'+pc+'" style="width:'+Math.min(p,100)+'%"></div></div>'+
-        '<div class="pipeline-badge"><div class="pip-dot '+(pipOk?"pip-ok":"pip-warn")+'"></div><div class="pipeline-text">Pipeline <strong>'+fmt(pipeline)+'</strong> ('+pipPct+'% of quota) <span class="pipeline-status '+(pipOk?"covered":"not-covered")+'">'+(pipOk?"✓ Covered":"Not yet covered")+'</span></div></div>'+
-      '</div>'+
-      '<div class="funnels">'+
-        '<div class="funnel-col"><div class="funnel-heading fh-btf"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>Bottom Funnel (published incl.)</div><div class="funnel-total ft-btf">'+fmt(btfTotal)+'</div><div class="status-list">'+btfRows+'</div></div>'+
-        '<div class="funnel-col"><div class="funnel-heading fh-top"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--purple)"/></svg>Top Funnel</div><div class="funnel-total ft-top">'+fmt(topTotal)+'</div><div class="status-list">'+topRows+'</div></div>'+
+    var sp = c.sponsored || { sum_lv: 0, sum_final_usd: 0, count: 0, efficiency_ratio: null, avg_sponsored_fee: null };
+    var has = sp.count > 0;
+    
+    var card = document.createElement("div");
+    card.className = "client-card";
+    card.innerHTML =
+      '<div class="card-header"><div class="client-name">' + esc(c.client) + '</div></div>' +
+      '<div class="sponsored-metrics-card">' +
+        '<div class="spm-item"><div class="spm-label">Efficiency ratio</div><div class="spm-value ' + (has ? "spm-ratio" : "spm-na") + '">' + (has ? fmtRatio(sp.efficiency_ratio) : "—") + '</div><div class="spm-sub">Σ Final $ ÷ Σ LV</div></div>' +
+        '<div class="spm-item"><div class="spm-label">Avg fee / link</div><div class="spm-value ' + (has ? "" : "spm-na") + '">' + (has ? fmtMoney(sp.avg_sponsored_fee) : "—") + '</div><div class="spm-sub">Σ Final $ ÷ count</div></div>' +
+        '<div class="spm-item"><div class="spm-label">Σ Final $</div><div class="spm-value">' + (has ? fmtMoney(sp.sum_final_usd) : "—") + '</div><div class="spm-sub">Total cost</div></div>' +
+        '<div class="spm-item"><div class="spm-label">Links (priced)</div><div class="spm-value spm-count">' + fmt(sp.count) + '</div><div class="spm-sub">BOF with FINAL $</div></div>' +
       '</div>';
-    card.innerHTML += renderSponsoredStrip(c.sponsored);
     grid.appendChild(card);
   });
 
