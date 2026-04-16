@@ -67,6 +67,13 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 .refresh-btn .spin-sm { width: 10px; height: 10px; border: 1.5px solid var(--border2); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
 .refresh-btn.loading .spin-sm { display: block; }
 
+.tabs { display: flex; border-bottom: 1px solid var(--border2); margin-top: 1.75rem; }
+.tab { padding: 13px 22px; font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; font-family: var(--fm); color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; }
+.tab:hover { color: var(--muted2); }
+.tab.active { color: var(--purple); border-bottom-color: var(--purple); }
+.tab-content { display: none; padding-top: 1.75rem; }
+.tab-content.active { display: block; }
+
 .summary-bar { display: grid; grid-template-columns: repeat(5,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; margin-bottom: 1.75rem; }
 .sum-tile { background: var(--surface); padding: 1.1rem 1.4rem; transition: background 0.15s; }
 .sum-tile:hover { background: var(--surface2); }
@@ -200,7 +207,11 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
       </button>
     </div>
   </div>
-  <div class="dashboard-body">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('fees')">Sponsored Fees</div>
+    <div class="tab" onclick="switchTab('team')">OM Team</div>
+  </div>
+  <div class="tab-content active" id="tab-fees">
     <div class="summary-sponsored-wrap">
       <div class="summary-sponsored-title">
         <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>
@@ -209,10 +220,13 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
       <div class="summary-bar summary-sponsored" id="summary-sponsored-internal"></div>
       <p class="sponsored-footnote" id="sponsored-footnote-internal"></p>
     </div>
+    <div class="clients-grid" id="grid-internal"></div>
+  </div>
+  <div class="tab-content" id="tab-team">
     <div class="team-performance-wrap">
       <div class="team-perf-title">
         <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--purple)"/></svg>
-        Team performance — published link count (2026)
+        Published link count by team member (2026)
       </div>
       <div class="team-table-scroll">
         <table class="team-table" id="team-table-count"></table>
@@ -221,7 +235,7 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
     <div class="team-performance-wrap">
       <div class="team-perf-title">
         <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>
-        Team performance — published link value (2026)
+        Published link value by team member (2026)
       </div>
       <div class="team-table-scroll">
         <table class="team-table" id="team-table-lv"></table>
@@ -230,13 +244,21 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
     <div class="team-performance-wrap">
       <div class="team-perf-title">
         <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--amber)"/></svg>
-        Team performance — total cost of published links (2026)
+        Total cost of published links by team member (2026)
       </div>
       <div class="team-table-scroll">
         <table class="team-table" id="team-table-cost"></table>
       </div>
     </div>
-    <div class="clients-grid" id="grid-internal"></div>
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--green)"/></svg>
+        Average sponsored fee per link by team member (2026)
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="team-table-avg"></table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -244,6 +266,14 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 var globalClients = [];
 var globalSponsoredTotals = null;
 var globalTeamPerf = null;
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab").forEach(function(t, i) {
+    t.classList.toggle("active", (tab === "fees" && i === 0) || (tab === "team" && i === 1));
+  });
+  document.getElementById("tab-fees").classList.toggle("active", tab === "fees");
+  document.getElementById("tab-team").classList.toggle("active", tab === "team");
+}
 
 function n(v) { var x = parseFloat(v); return isNaN(x) ? 0 : x; }
 function fmt(v) { return Math.round(v||0).toLocaleString("en-US"); }
@@ -298,6 +328,7 @@ async function loadData() {
     renderTeamPerformance(globalTeamPerf, "team-table-count", "link_counts", false);
     renderTeamPerformance(globalTeamPerf, "team-table-lv", "link_values", true);
     renderTeamPerformance(globalTeamPerf, "team-table-cost", "total_costs", "money");
+    renderTeamPerformance(globalTeamPerf, "team-table-avg", "avg_fees", "money");
 
     loadScreen.style.display = "none";
     dash.style.display = "block";

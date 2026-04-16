@@ -149,10 +149,11 @@ async function buildPayload(omToken) {
     }
 
     // ── Team performance by month (Published only, year 2026 only) ──
-    const teamByMonth = {};
-    const teamLvByMonth = {};
-    const teamCostByMonth = {};
-    const allMonths = new Set();
+  const teamByMonth = {};
+  const teamLvByMonth = {};
+  const teamCostByMonth = {};
+  const teamAvgByMonth = {};
+  const allMonths = new Set();
 
     for (const row of omRows) {
       const status = row["STATUS 1"];
@@ -170,25 +171,48 @@ async function buildPayload(omToken) {
       const lv = parseFloat(row["LV"]) || 0;
       const finalUsd = getFinalDollarValue(row);
       
-      if (!teamByMonth[team]) teamByMonth[team] = {};
-      if (!teamLvByMonth[team]) teamLvByMonth[team] = {};
-      if (!teamCostByMonth[team]) teamCostByMonth[team] = {};
-      
-      teamByMonth[team][pm] = (teamByMonth[team][pm] || 0) + 1;
-      teamLvByMonth[team][pm] = (teamLvByMonth[team][pm] || 0) + lv;
-      if (finalUsd !== null) {
-        teamCostByMonth[team][pm] = (teamCostByMonth[team][pm] || 0) + finalUsd;
-      }
-      allMonths.add(pm);
+    if (!teamByMonth[team]) teamByMonth[team] = {};
+    if (!teamLvByMonth[team]) teamLvByMonth[team] = {};
+    if (!teamCostByMonth[team]) teamCostByMonth[team] = {};
+    if (!teamAvgByMonth[team]) teamAvgByMonth[team] = {};
+
+    if (!teamByMonth[team][pm]) teamByMonth[team][pm] = 0;
+    if (!teamLvByMonth[team][pm]) teamLvByMonth[team][pm] = 0;
+    if (!teamCostByMonth[team][pm]) teamCostByMonth[team][pm] = 0;
+    if (!teamAvgByMonth[team][pm]) teamAvgByMonth[team][pm] = { sum: 0, count: 0 };
+
+    teamByMonth[team][pm] += 1;
+    teamLvByMonth[team][pm] += lv;
+    if (finalUsd !== null) {
+      teamCostByMonth[team][pm] += finalUsd;
+      teamAvgByMonth[team][pm].sum += finalUsd;
+      teamAvgByMonth[team][pm].count += 1;
     }
+    allMonths.add(pm);
+  }
 
-    const monthsArray = Array.from(allMonths).sort((a, b) => {
-      const dA = new Date(a + " 01");
-      const dB = new Date(b + " 01");
-      return dA - dB;
-    });
+  const monthsArray = Array.from(allMonths).sort((a, b) => {
+    const dA = new Date(a + " 01");
+    const dB = new Date(b + " 01");
+    return dA - dB;
+  });
 
-    const allClients = [...new Set([...Object.keys(internal), ...Object.keys(quotas)])].sort();
+  const avgFeesByMonth = {};
+  for (const member in teamAvgByMonth) {
+    avgFeesByMonth[member] = {};
+    for (const month in teamAvgByMonth[member]) {
+      const data = teamAvgByMonth[member][month];
+      avgFeesByMonth[member][month] = data.count > 0 ? data.sum / data.count : 0;
+    }
+  }
+
+  console.log("[✓] Team performance aggregated:", {
+    members: Object.keys(teamByMonth).length,
+    months: monthsArray.length,
+    avgFeesByMonth: Object.keys(avgFeesByMonth).length
+  });
+
+  const allClients = [...new Set([...Object.keys(internal), ...Object.keys(quotas)])].sort();
 
     const clients = allClients.map(name => {
       const row = {
@@ -237,11 +261,12 @@ async function buildPayload(omToken) {
       sponsored_totals,
       team_performance: {
         members: Object.keys(teamByMonth).sort(),
-        months: monthsArray,
-        link_counts: teamByMonth,
-        link_values: teamLvByMonth,
-        total_costs: teamCostByMonth
-      },
+      months: monthsArray,
+      link_counts: teamByMonth,
+      link_values: teamLvByMonth,
+      total_costs: teamCostByMonth,
+      avg_fees: avgFeesByMonth
+    },
       debug: {
         quotas_loaded: Object.keys(quotas).length,
         om_rows: omRows.length,
