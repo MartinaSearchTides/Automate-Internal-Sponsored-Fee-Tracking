@@ -130,6 +130,15 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
   position: sticky; right: 0; background: var(--surface); border-left: 2px solid var(--border2);
   font-weight: 600; z-index: 1;
 }
+.team-table tr.total-row td {
+  font-weight: 600; background: var(--surface2); border-top: 2px solid var(--border2);
+}
+.team-table tr.total-row td:first-child {
+  background: var(--surface2); position: sticky; left: 0; z-index: 2;
+}
+.team-table tr.total-row td.total-col {
+  background: var(--surface2); position: sticky; right: 0; z-index: 2;
+}
 .team-table tbody tr:hover { background: var(--surface2); }
 .team-table tbody tr:hover td:first-child { background: var(--surface2); }
 .team-table tbody tr:hover td.total-col { background: var(--surface2); }
@@ -487,6 +496,10 @@ function renderTeamPerformance(perf, tableId, dataKey, formatType) {
   });
   thead += '<th class="total-col">Total</th></tr></thead>';
   
+  var monthTotals = {};
+  var grandTotal = 0;
+  var grandCount = 0;
+  
   var tbody = '<tbody>';
   members.forEach(function(member) {
     tbody += '<tr><td>' + esc(member) + '</td>';
@@ -502,18 +515,24 @@ function renderTeamPerformance(perf, tableId, dataKey, formatType) {
         display = fmtMoney(val);
         rowTotal += val;
         rowCount++;
+        monthTotals[m] = (monthTotals[m] || 0) + val;
       } else if (formatType === "ratio") {
         display = fmtRatio(val);
         rowTotal += val;
         rowCount++;
+        monthTotals[m] = (monthTotals[m] || { sum: 0, count: 0 });
+        monthTotals[m].sum += val;
+        monthTotals[m].count++;
       } else if (formatType === true) {
         display = fmt(Math.round(val));
         rowTotal += val;
         rowCount++;
+        monthTotals[m] = (monthTotals[m] || 0) + val;
       } else {
         display = val;
         rowTotal += val;
         rowCount++;
+        monthTotals[m] = (monthTotals[m] || 0) + val;
       }
       tbody += '<td' + cls + '>' + display + '</td>';
     });
@@ -522,17 +541,57 @@ function renderTeamPerformance(perf, tableId, dataKey, formatType) {
       totalDisplay = '—';
     } else if (formatType === "money") {
       totalDisplay = fmtMoney(rowTotal);
+      grandTotal += rowTotal;
+      grandCount++;
     } else if (formatType === "ratio") {
       totalDisplay = fmtRatio(rowTotal / rowCount);
+      grandTotal += rowTotal;
+      grandCount += rowCount;
     } else if (formatType === true) {
       totalDisplay = fmt(Math.round(rowTotal));
+      grandTotal += rowTotal;
+      grandCount++;
     } else {
       totalDisplay = fmt(rowTotal);
+      grandTotal += rowTotal;
+      grandCount++;
     }
     tbody += '<td class="total-col"><strong>' + totalDisplay + '</strong></td>';
     tbody += '</tr>';
   });
-  tbody += '</tbody>';
+  
+  tbody += '<tr class="total-row"><td><strong>Total</strong></td>';
+  months.forEach(function(m) {
+    var val = monthTotals[m];
+    var display;
+    if (!val || val === 0) {
+      display = '—';
+    } else if (formatType === "ratio") {
+      display = fmtRatio(val.sum / val.count);
+    } else if (formatType === "money") {
+      display = fmtMoney(val);
+    } else if (formatType === true) {
+      display = fmt(Math.round(val));
+    } else {
+      display = fmt(val);
+    }
+    tbody += '<td><strong>' + display + '</strong></td>';
+  });
+  
+  var grandTotalDisplay;
+  if (grandCount === 0) {
+    grandTotalDisplay = '—';
+  } else if (formatType === "ratio") {
+    grandTotalDisplay = fmtRatio(grandTotal / grandCount);
+  } else if (formatType === "money") {
+    grandTotalDisplay = fmtMoney(grandTotal);
+  } else if (formatType === true) {
+    grandTotalDisplay = fmt(Math.round(grandTotal));
+  } else {
+    grandTotalDisplay = fmt(grandTotal);
+  }
+  tbody += '<td class="total-col"><strong>' + grandTotalDisplay + '</strong></td>';
+  tbody += '</tr></tbody>';
   
   table.innerHTML = thead + tbody;
 }
