@@ -168,7 +168,10 @@ async function buildPayload(omToken) {
       if (status !== "Published") continue;
       
       const team = resolve(row["TEAM"] || row["Team"] || row["team"]);
-      if (!team || team === "Julie") continue;
+      if (!team) continue;
+      
+      // Exclude Julie (case-insensitive, trim whitespace)
+      if (team.trim().toLowerCase() === "julie") continue;
 
       const pm = (row["Prod Month"] || "").trim();
       if (!pm) continue;
