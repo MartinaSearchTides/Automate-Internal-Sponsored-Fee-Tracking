@@ -3,8 +3,6 @@ const SERVER = "https://seatable.searchtides.com";
 const BTF = ["Published", "Pending", "Content Requested", "Ready for Delivery", "Revisions Requested"];
 const TOP = ["Site Approved", "Negotiation"];
 const ALL_STATUSES = [...BTF, ...TOP];
-const LBT_CLIENTS  = ["FanDuel", "FanDuel Casino", "FanDuel Racing", "CreditNinja"];
-const PRESS_CLIENT = "FanDuel";
 
 async function getAccess(apiToken) {
   const res = await fetch(SERVER + "/api/v2.1/dtable/app-access-token/", {
@@ -46,54 +44,63 @@ function resolve(val) {
   return val || null;
 }
 
+/** Parse one SeaTable cell to USD number; null = not filled (excluded from KPIs). Zero is filled. */
+function parseFinalUsdCell(raw) {
+  if (raw === undefined || raw === null) return null;
+  let disp = raw;
+  if (Array.isArray(disp)) disp = disp[0] ?? null;
+  if (disp !== null && typeof disp === "object") {
+    disp = disp.display_value ?? disp.name ?? null;
+  }
+  if (disp === null || disp === undefined) return null;
+  if (typeof disp === "string" && disp.trim() === "") return null;
+  if (typeof disp === "number" && !Number.isNaN(disp)) return disp;
+
+  const n = parseFloat(String(disp).replace(/[$,\s]/g, ""));
+  if (Number.isNaN(n)) return null;
+  return n;
+}
+
+/** FINAL $ present (incl. 0); not filled => row excluded from sponsored KPIs */
+function getFinalDollarValue(row) {
+  const candidates = [
+    "FINAL $",
+    "FINAL$",
+    "Final $",
+    "\u{1F539}FINAL $",
+    "\u{1F539} FINAL $"
+  ];
+  for (const key of candidates) {
+    if (!Object.prototype.hasOwnProperty.call(row, key)) continue;
+    const n = parseFinalUsdCell(row[key]);
+    if (n !== null) return n;
+  }
+  return null;
+}
+
 function monthShort()   { return new Date().toLocaleString("en-US", { month: "short" }); }
 function prodMonth()    { return new Date().toLocaleString("en-US", { month: "short", year: "numeric" }); }
 function currentYear()  { return new Date().getFullYear(); }
-function currentMonth() { return new Date().getMonth() + 1; }
 
-export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=60");
+async function buildPayload(omToken) {
+    console.log("[buildPayload] START");
+    const PM = prodMonth();
+    const MS = monthShort();
+    const CY = currentYear();
+    console.log("[buildPayload] Date filters: PM =", PM, ", MS =", MS, ", CY =", CY);
 
-  const OM_TOKEN        = process.env.OM_API_TOKEN;
-  const LBT_TOKEN       = process.env.LBT_API_TOKEN;
-  const CMS_TOKEN       = process.env.CMS_API_TOKEN;
-  const REPORTING_TOKEN = process.env.REPORTING_API_TOKEN;
+    console.log("[buildPayload] Getting SeaTable access...");
+    const omAccess = await getAccess(omToken);
+    console.log("[buildPayload] Access OK, uuid:", omAccess.dtable_uuid?.slice(0, 8) + "...");
 
-  if (!OM_TOKEN || !LBT_TOKEN || !CMS_TOKEN || !REPORTING_TOKEN) {
-    const missing = [
-      !OM_TOKEN && "OM_API_TOKEN",
-      !LBT_TOKEN && "LBT_API_TOKEN",
-      !CMS_TOKEN && "CMS_API_TOKEN",
-      !REPORTING_TOKEN && "REPORTING_API_TOKEN"
-    ].filter(Boolean).join(", ");
-    return res.status(500).json({ ok: false, error: "Missing env vars: " + missing });
-  }
-
-  try {
-    const PM    = prodMonth();
-    const MS    = monthShort();
-    const CY    = currentYear();
-    const CM    = currentMonth();
-
-    // ── Auth all 4 bases in parallel ──
-    const [omAccess, lbtAccess, cmsAccess, reportingAccess] = await Promise.all([
-      getAccess(OM_TOKEN),
-      getAccess(LBT_TOKEN),
-      getAccess(CMS_TOKEN),
-      getAccess(REPORTING_TOKEN)
-    ]);
-
-    // ── Fetch all data in parallel ──
-    const [quotaRows, omRows, lbtRows, cmsRows, reportingRows] = await Promise.all([
+    console.log("[buildPayload] Fetching QUOTAS and OM rows...");
+    const [quotaRows, omRows] = await Promise.all([
       listRows(omAccess, "QUOTAS", ""),
-      listRows(omAccess, "OM", "Martina Dashboard View"),
-      listRows(lbtAccess, "OM", "View for dashboard"),
-      listRows(cmsAccess, "OM", "Default View_Martina"),
-      listRows(reportingAccess, "QUOTAS", "")
+      listRows(omAccess, "OM", "Martina Dashboard View")
     ]);
+    console.log("[buildPayload] Rows fetched: quotaRows =", quotaRows.length, ", omRows =", omRows.length);
 
-    // ── 1. Internal quotas (HSS QUOTAS) ──
+    // ── Internal quotas (HSS QUOTAS) ──
     const quotas = {};
     for (const row of quotaRows) {
       const client   = resolve(row["\u{1F539}Client"] || row["Client"]);
@@ -106,8 +113,11 @@ export default async function handler(req, res) {
       if (mOk && yOk) quotas[client] = parseFloat(quotaVal) || 0;
     }
 
-    // ── 2. Internal OM LV data ──
+    // ── Internal OM LV + sponsored fee aggregates (BOF rows with filled FINAL $ only) ──
     const internal = {};
+    const sponsoredByClient = {};
+    const sponsoredTotals = { sum_lv: 0, sum_cost: 0, count: 0 };
+
     for (const row of omRows) {
       const client = resolve(row["CLIENT*"]);
       const status = row["STATUS 1"];
@@ -117,91 +127,115 @@ export default async function handler(req, res) {
       if (!client || !ALL_STATUSES.includes(status)) continue;
       if (!internal[client]) internal[client] = {};
       internal[client][status] = (internal[client][status] || 0) + lv;
-    }
 
-    // ── 3. External LBT ──
-    const external = {};
-    for (const row of lbtRows) {
-      const client = resolve(row["CLIENT*"]);
-      const status = row["STATUS 1"];
-      const lv     = parseFloat(row["LV"]) || 0;
-      const pm     = (row["Prod Month"] || "").trim();
-      if (pm !== PM) continue;
-      if (!client || !LBT_CLIENTS.includes(client)) continue;
-      if (status !== "Published") continue;
-      external[client] = (external[client] || 0) + lv;
-    }
-
-    // ── 4. Journalists / CMS Master ──
-    let journalists = 0;
-    for (const row of cmsRows) {
-      const dateVal = row["Live Link Date"] || "";
-      const lv      = parseFloat(row["LV"]) || 0;
-      if (!dateVal) continue;
-      try {
-        const d = new Date(String(dateVal).substring(0, 10));
-        if (d.getFullYear() === CY && d.getMonth() + 1 === CM) journalists += lv;
-      } catch(e) { continue; }
-    }
-
-    // ── 5. Company quotas (Reporting QUOTAS) ──
-    const companyQuotas = {};
-    const reportingDebug = []; // capture first 5 rows for debugging
-    for (const row of reportingRows) {
-      // Try all possible column name variants
-      const client   = resolve(row["Client"] || row["client"] || null);
-      const monthVal = row["Month"] || row["month"] || "";
-      const quotaVal = row["Monthly LV Quota"] || row["LV Quota"] || 0;
-
-      if (reportingDebug.length < 3) {
-        reportingDebug.push({
-          raw_keys: Object.keys(row).slice(0, 8),
-          client, monthVal, quotaVal
-        });
-      }
-
-      if (!client || !monthVal) continue;
-      if (monthVal.trim().toLowerCase() === MS.toLowerCase()) {
-        companyQuotas[client] = parseFloat(quotaVal) || 0;
+      if (BTF.includes(status)) {
+        const finalUsd = getFinalDollarValue(row);
+        if (finalUsd !== null) {
+          if (!sponsoredByClient[client]) {
+            sponsoredByClient[client] = { sum_lv: 0, sum_cost: 0, count: 0 };
+          }
+          sponsoredByClient[client].sum_lv += lv;
+          sponsoredByClient[client].sum_cost += finalUsd;
+          sponsoredByClient[client].count += 1;
+          sponsoredTotals.sum_lv += lv;
+          sponsoredTotals.sum_cost += finalUsd;
+          sponsoredTotals.count += 1;
+        }
       }
     }
 
-    // ── 6. Build response ──
     const allClients = [...new Set([...Object.keys(internal), ...Object.keys(quotas)])].sort();
 
     const clients = allClients.map(name => {
       const row = {
-        client:        name,
-        quota:         quotas[name] || 0,
-        company_quota: companyQuotas[name] || 0,
-        ext_published: LBT_CLIENTS.includes(name) ? Math.round((external[name] || 0) * 100) / 100 : 0,
-        journalists:   name === PRESS_CLIENT ? Math.round(journalists * 100) / 100 : 0
+        client: name,
+        quota:  quotas[name] || 0
       };
       const intData = internal[name] || {};
       for (const s of ALL_STATUSES) row[s] = Math.round((intData[s] || 0) * 100) / 100;
+
+      const sp = sponsoredByClient[name] || { sum_lv: 0, sum_cost: 0, count: 0 };
+      const efficiency_ratio =
+        sp.sum_lv > 0 ? Math.round((sp.sum_cost / sp.sum_lv) * 10000) / 10000 : null;
+      const avg_sponsored_fee =
+        sp.count > 0 ? Math.round((sp.sum_cost / sp.count) * 100) / 100 : null;
+      row.sponsored = {
+        sum_lv:          Math.round(sp.sum_lv * 100) / 100,
+        sum_final_usd:   Math.round(sp.sum_cost * 100) / 100,
+        count:           sp.count,
+        efficiency_ratio,
+        avg_sponsored_fee
+      };
       return row;
     });
 
-    return res.status(200).json({
+    const stEff =
+      sponsoredTotals.sum_lv > 0
+        ? Math.round((sponsoredTotals.sum_cost / sponsoredTotals.sum_lv) * 10000) / 10000
+        : null;
+    const stAvg =
+      sponsoredTotals.count > 0
+        ? Math.round((sponsoredTotals.sum_cost / sponsoredTotals.count) * 100) / 100
+        : null;
+    const sponsored_totals = {
+      sum_lv:           Math.round(sponsoredTotals.sum_lv * 100) / 100,
+      sum_final_usd:    Math.round(sponsoredTotals.sum_cost * 100) / 100,
+      count:            sponsoredTotals.count,
+      efficiency_ratio: stEff,
+      avg_sponsored_fee: stAvg
+    };
+
+    console.log("[buildPayload] Payload built: clients =", clients.length, ", sponsored links =", sponsored_totals.count);
+    return {
       ok: true,
       generated: new Date().toISOString(),
       prod_month: PM,
+      sponsored_totals,
       debug: {
         quotas_loaded: Object.keys(quotas).length,
         om_rows: omRows.length,
-        lbt_rows: lbtRows.length,
-        cms_rows: cmsRows.length,
-        internal_clients: Object.keys(internal).length,
-        company_quotas_loaded: Object.keys(companyQuotas).length,
-        company_quotas_clients: Object.keys(companyQuotas),
-        reporting_sample: reportingDebug,
-        journalists_total: Math.round(journalists * 100) / 100
+        internal_clients: Object.keys(internal).length
       },
       clients
-    });
+    };
+}
 
-  } catch(err) {
-    console.error("Dashboard API error:", err);
-    return res.status(500).json({ ok: false, error: err.message });
+/**
+ * Vercel Node serverless function (CommonJS for reliability with standalone /api).
+ * @param {import("@vercel/node").VercelRequest} req
+ * @param {import("@vercel/node").VercelResponse} res
+ */
+module.exports = async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=60");
+
+  console.log("[START] /api/data called");
+
+  if (req.method === "OPTIONS") {
+    console.log("[OPTIONS] Returning 204");
+    return res.status(204).end();
+  }
+
+  const OM_TOKEN = process.env.OM_API_TOKEN;
+  console.log("[ENV] OM_API_TOKEN present:", !!OM_TOKEN, OM_TOKEN ? `(length ${OM_TOKEN.length})` : "(missing)");
+
+  if (!OM_TOKEN) {
+    console.error("[ERROR] Missing OM_API_TOKEN");
+    return res.status(500).json({
+      ok: false,
+      error:
+        "Missing env var: OM_API_TOKEN. Vercel → Project → Settings → Environment Variables → add OM_API_TOKEN (exact name) → Redeploy."
+    });
+  }
+
+  try {
+    console.log("[BUILD] Calling buildPayload...");
+    const body = await buildPayload(OM_TOKEN);
+    console.log("[SUCCESS] buildPayload returned", Object.keys(body).join(", "), "- clients:", body.clients?.length);
+    return res.status(200).json(body);
+  } catch (err) {
+    console.error("[ERROR] Dashboard API error:", err.message);
+    console.error("[STACK]", err.stack);
+    return res.status(500).json({ ok: false, error: err.message || String(err) });
   }
 }

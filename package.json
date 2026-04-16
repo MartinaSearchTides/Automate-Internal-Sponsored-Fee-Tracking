@@ -1,5 +1,8 @@
 {
-  "name": "searchtides-dashboard",
+  "name": "searchtides-internal-sponsored-fee-dashboard",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@vercel/node": "^3.2.29"
+  }
 }

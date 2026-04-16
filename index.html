@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="googlebot" content="noindex, nofollow">
-<title>SearchTides - LINKBUILDING DASHBOARD</title>
+<title>SearchTides - Internal Sponsored Fee Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,6 +55,7 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 
 /* DASHBOARD */
 #dashboard { display: none; max-width: 1500px; margin: 0 auto; padding: 0 2rem 4rem; }
+.dashboard-body { margin-top: 1.75rem; }
 .topnav { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 0; border-bottom: 1px solid var(--border2); flex-wrap: wrap; gap: 1rem; }
 .nav-brand { font-family: var(--fd); font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
 .nav-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); }
@@ -65,13 +66,6 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 .refresh-btn:hover { border-color: var(--purple-bdr); color: var(--purple); }
 .refresh-btn .spin-sm { width: 10px; height: 10px; border: 1.5px solid var(--border2); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
 .refresh-btn.loading .spin-sm { display: block; }
-
-.tabs { display: flex; border-bottom: 1px solid var(--border2); margin-bottom: 1.75rem; }
-.tab { padding: 13px 22px; font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; font-family: var(--fm); color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; }
-.tab:hover { color: var(--muted2); }
-.tab.active { color: var(--purple); border-bottom-color: var(--purple); }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
 
 .summary-bar { display: grid; grid-template-columns: repeat(5,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; margin-bottom: 1.75rem; }
 .sum-tile { background: var(--surface); padding: 1.1rem 1.4rem; transition: background 0.15s; }
@@ -96,23 +90,45 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 .pipeline-status.covered { color: var(--green); }
 .pipeline-status.not-covered { color: var(--orange); }
 
+.summary-sponsored-wrap { margin-bottom: 1.75rem; }
+.summary-sponsored-title {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; font-family: var(--fm);
+  color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.summary-sponsored-title svg { flex-shrink: 0; }
+.summary-bar.summary-sponsored { grid-template-columns: repeat(5, 1fr); }
+.sponsored-footnote {
+  font-size: 11px; color: var(--muted); font-family: var(--fm); margin-top: 10px; line-height: 1.45; max-width: 920px;
+}
+.sv-dollar { color: var(--text); }
+.sum-sub { font-size: 11px; font-family: var(--fm); color: var(--muted); margin-top: 8px; font-weight: 400; letter-spacing: 0; text-transform: none; }
+
+.sponsored-strip {
+  border-top: 1px solid var(--border);
+  padding: 16px 22px 18px;
+  background: linear-gradient(180deg, rgba(14,158,128,0.04) 0%, var(--surface) 100%);
+}
+.sponsored-strip-head {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; font-family: var(--fm);
+  color: var(--teal); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+.sponsored-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 16px; }
+.sponsored-metric-label { font-size: 10px; font-family: var(--fm); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.sponsored-metric-val { font-family: var(--fd); font-size: 20px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.sponsored-metric-val.em { color: var(--purple); }
+.sponsored-metric-val.na { color: var(--muted); font-size: 15px; font-weight: 600; font-family: var(--fm); }
+
 .clients-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
 
 .client-card { background: var(--surface); display: flex; flex-direction: column; }
 .client-card:hover { background: var(--surface2); }
 .client-card:nth-child(odd)  { border-top: 3px solid var(--purple); }
 .client-card:nth-child(even) { border-top: 3px solid var(--teal); }
-.company-card { background: var(--surface); display: flex; flex-direction: column; }
-.company-card:hover { background: var(--surface2); }
-.company-card:nth-child(odd)  { border-top: 3px solid var(--amber); }
-.company-card:nth-child(even) { border-top: 3px solid var(--purple); }
 
 .card-header { padding: 20px 24px 16px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); }
 .client-name { font-family: var(--fd); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
 .quota-pill { font-size: 12px; font-family: var(--fm); color: var(--muted2); background: var(--surface3); border: 1px solid var(--border2); padding: 4px 10px; border-radius: 3px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .quota-pill strong { color: var(--text); font-weight: 500; }
-.edit-quota-btn { font-size: 10px; color: var(--purple); cursor: pointer; background: none; border: none; font-family: var(--fm); padding: 0; margin-left: 8px; }
-
 .progress-wrap { padding: 13px 24px 15px; border-bottom: 1px solid var(--border); }
 .progress-labels { display: flex; justify-content: space-between; font-size: 11px; font-family: var(--fm); color: var(--muted); margin-bottom: 7px; font-variant-numeric: tabular-nums; }
 .progress-pct { font-weight: 500; }
@@ -141,36 +157,11 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 .s-val { font-size: 13px; font-family: var(--fm); font-weight: 500; color: var(--text); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
 .s-val-pub { color: var(--teal); font-weight: 600; font-size: 15px; }
 
-.sources { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); }
-.sources.single { grid-template-columns: 1fr; }
-.source-col { background: var(--surface); padding: 16px 20px 18px; }
-.source-heading { font-size: 9px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; font-family: var(--fm); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-.sh-internal { color: var(--teal); }
-.sh-external { color: var(--purple); }
-.sh-journ    { color: var(--amber); }
-.source-total { font-family: var(--fd); font-size: 40px; font-weight: 700; letter-spacing: -2px; line-height: 1; margin-bottom: 6px; font-variant-numeric: tabular-nums; }
-.st-internal { color: var(--teal); }
-.st-external { color: var(--purple); }
-.st-journ    { color: var(--amber); }
-.st-na       { color: var(--muted); }
-.source-sub { font-size: 11px; font-family: var(--fm); color: var(--muted); }
-
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; z-index: 100; }
-.modal-box { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 2rem; width: 100%; max-width: 440px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
-.modal-title { font-family: var(--fd); font-size: 20px; font-weight: 700; margin-bottom: 0.3rem; }
-.modal-sub { font-size: 12px; color: var(--muted); font-family: var(--fm); margin-bottom: 1.5rem; }
-.modal-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
-.modal-label { font-size: 13px; color: var(--text); min-width: 150px; font-weight: 500; }
-.modal-input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-radius: 3px; color: var(--text); font-family: var(--fm); font-size: 13px; padding: 7px 10px; outline: none; font-variant-numeric: tabular-nums; }
-.modal-input:focus { border-color: var(--purple-bdr); }
-.modal-footer { display: flex; gap: 10px; margin-top: 1.5rem; }
-.modal-save { flex: 1; padding: 10px; background: var(--purple); color: #fff; border: none; border-radius: 4px; font-size: 12px; font-weight: 600; font-family: var(--fs); letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; }
-.modal-cancel { padding: 10px 18px; background: transparent; color: var(--muted2); border: 1px solid var(--border2); border-radius: 4px; font-size: 12px; font-family: var(--fs); cursor: pointer; }
-
 @media (max-width: 900px) {
   .clients-grid { grid-template-columns: 1fr; }
   .summary-bar  { grid-template-columns: repeat(2,1fr); }
-  .sources      { grid-template-columns: 1fr !important; }
+  .summary-bar.summary-sponsored { grid-template-columns: repeat(2, 1fr); }
+  .sponsored-metrics { grid-template-columns: repeat(2, 1fr); }
   .funnels      { grid-template-columns: 1fr; }
   .funnel-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
 }
@@ -182,9 +173,9 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
   .nav-brand span { font-size: 12px; }
   .nav-meta { font-size: 10px; }
   .refresh-btn { font-size: 10px; padding: 5px 10px; }
-  .tabs { overflow-x: auto; }
-  .tab { padding: 11px 16px; font-size: 10px; white-space: nowrap; }
   .summary-bar { grid-template-columns: 1fr; }
+  .summary-bar.summary-sponsored { grid-template-columns: 1fr; }
+  .sponsored-metrics { grid-template-columns: 1fr; }
   .sum-tile { padding: 1rem 1.2rem; }
   .sum-label { font-size: 9px; }
   .sum-value { font-size: 26px; }
@@ -203,19 +194,9 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
   .s-name { font-size: 11px; }
   .s-val { font-size: 12px; }
   .s-val-pub { font-size: 14px; }
-  .source-col { padding: 14px 18px 16px; }
-  .source-heading { font-size: 8px; }
-  .source-total { font-size: 32px; letter-spacing: -1.5px; }
-  .source-sub { font-size: 10px; }
   .pipeline-badge { padding: 8px 12px; margin-top: 10px; }
   .pipeline-text { font-size: 11px; }
   .pipeline-badge .pip-dot { width: 8px; height: 8px; }
-  .modal-box { padding: 1.5rem; margin: 1rem; }
-  .modal-title { font-size: 18px; }
-  .modal-row { flex-direction: column; align-items: stretch; }
-  .modal-label { min-width: auto; margin-bottom: 4px; }
-  .modal-footer { flex-direction: column-reverse; }
-  .modal-save, .modal-cancel { width: 100%; }
   .load-title { font-size: 36px; text-align: center; }
   .load-wordmark { font-size: 11px; }
 }
@@ -225,7 +206,7 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 
 <div id="loading-screen">
   <div class="load-wordmark">SearchTides</div>
-  <h1 class="load-title">LINKBUILDING <em>DASHBOARD</em></h1>
+  <h1 class="load-title">INTERNAL SPONSORED <em>FEE</em></h1>
   <div class="load-status" id="load-status">
     <div class="spinner"></div>
     <span id="load-text">Loading data...</span>
@@ -234,7 +215,7 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 
 <div id="dashboard">
   <div class="topnav">
-    <div class="nav-brand"><div class="nav-dot"></div>SearchTides<span>/ LINKBUILDING DASHBOARD</span></div>
+    <div class="nav-brand"><div class="nav-dot"></div>SearchTides<span>/ INTERNAL SPONSORED FEE DASHBOARD</span></div>
     <div class="nav-right">
       <span class="nav-meta" id="nav-meta"></span>
       <button class="refresh-btn" id="refresh-btn" onclick="loadData()">
@@ -243,56 +224,42 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
       </button>
     </div>
   </div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('internal')">Internal Team</div>
-    <div class="tab" onclick="switchTab('company')">Company Overview</div>
-  </div>
-  <div class="tab-content active" id="tab-internal">
+  <div class="dashboard-body">
     <div class="summary-bar" id="summary-internal"></div>
-    <div class="clients-grid" id="grid-internal"></div>
-  </div>
-  <div class="tab-content" id="tab-company">
-    <div class="summary-bar" id="summary-company"></div>
-    <div class="clients-grid" id="grid-company"></div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="quota-modal" style="display:none">
-  <div class="modal-box">
-    <div class="modal-title">Company Quotas</div>
-    <div class="modal-sub" id="modal-sub"></div>
-    <div id="modal-rows"></div>
-    <div class="modal-footer">
-      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-save" onclick="saveQuotas()">Save quotas</button>
+    <div class="summary-sponsored-wrap">
+      <div class="summary-sponsored-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>
+        Internal sponsored fees (BOF, priced rows only)
+      </div>
+      <div class="summary-bar summary-sponsored" id="summary-sponsored-internal"></div>
+      <p class="sponsored-footnote" id="sponsored-footnote-internal"></p>
     </div>
+    <div class="clients-grid" id="grid-internal"></div>
   </div>
 </div>
 
 <script>
 var BTF = ["Published","Pending","Content Requested","Ready for Delivery","Revisions Requested"];
 var TOP = ["Site Approved","Negotiation"];
-var LBT_CLIENTS  = ["FanDuel","FanDuel Casino","FanDuel Racing","CreditNinja"];
-var PRESS_CLIENT = "FanDuel";
-var SK_QUOTAS = "st_company_quotas";
 var globalClients = [];
-
-function getQ() { try { return JSON.parse(localStorage.getItem(SK_QUOTAS)||"{}"); } catch(e) { return {}; } }
+var globalSponsoredTotals = null;
 
 function n(v) { var x = parseFloat(v); return isNaN(x) ? 0 : x; }
 function fmt(v) { return Math.round(v||0).toLocaleString("en-US"); }
+function fmtMoney(v) {
+  if (v === null || v === undefined) return "—";
+  var x = Number(v);
+  if (isNaN(x)) return "—";
+  return x.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+function fmtRatio(v) {
+  if (v === null || v === undefined || isNaN(v)) return "—";
+  return Number(v).toFixed(4);
+}
 function pct(val, total) { return total > 0 ? Math.round(val / total * 100) : 0; }
 function pcClass(p) { return p < 50 ? "red" : p < 90 ? "orange" : "green"; }
 function sumClass(pc) { return pc === "red" ? "sv-over" : pc === "orange" ? "sv-warn" : "sv-ok"; }
 function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-
-function switchTab(tab) {
-  document.querySelectorAll(".tab").forEach(function(t,i) {
-    t.classList.toggle("active",(tab==="internal"&&i===0)||(tab==="company"&&i===1));
-  });
-  document.getElementById("tab-internal").classList.toggle("active",tab==="internal");
-  document.getElementById("tab-company").classList.toggle("active",tab==="company");
-}
 
 async function loadData() {
   var btn = document.getElementById("refresh-btn");
@@ -303,17 +270,32 @@ async function loadData() {
   document.getElementById("load-text").textContent = "Loading data...";
 
   try {
-    var res = await fetch("/api/data");
-    if (!res.ok) throw new Error("API error " + res.status);
-    var json = await res.json();
+    var res = await fetch("/api/data?t=" + Date.now(), { cache: "no-store" });
+    var raw = await res.text();
+    var json = null;
+    try {
+      json = raw ? JSON.parse(raw) : null;
+    } catch (parseErr) {
+      json = null;
+    }
+    if (!res.ok) {
+      var errMsg =
+        json && json.error
+          ? json.error
+          : raw
+            ? ("HTTP " + res.status + " — " + raw.slice(0, 400).replace(/\s+/g, " ").trim())
+            : ("HTTP " + res.status + " (empty body)");
+      throw new Error(errMsg);
+    }
+    if (!json) throw new Error("Invalid JSON from API");
     if (!json.ok) throw new Error(json.error || "Unknown error");
 
     globalClients = json.clients;
+    globalSponsoredTotals = json.sponsored_totals || null;
     var loaded = new Date(json.generated).toLocaleTimeString("en-US");
     document.getElementById("nav-meta").textContent = json.clients.length + " clients - " + json.prod_month + " - loaded " + loaded;
 
     renderInternal(json.clients);
-    renderCompany(json.clients);
 
     loadScreen.style.display = "none";
     dash.style.display = "block";
@@ -322,7 +304,7 @@ async function loadData() {
     document.getElementById("load-text").textContent = "Error: " + err.message;
     loadScreen.innerHTML =
       '<div class="load-wordmark">SearchTides</div>' +
-      '<h1 class="load-title">LINKBUILDING <em>DASHBOARD</em></h1>' +
+      '<h1 class="load-title">INTERNAL SPONSORED <em>FEE</em></h1>' +
       '<div class="error-box">' +
         '<h3>Could not load data</h3>' +
         '<p>' + esc(err.message) + '</p>' +
@@ -331,6 +313,54 @@ async function loadData() {
   } finally {
     btn.classList.remove("loading");
   }
+}
+
+function renderSponsoredSummary(totals) {
+  var el = document.getElementById("summary-sponsored-internal");
+  var foot = document.getElementById("sponsored-footnote-internal");
+  if (!totals || !el) return;
+  var eff = totals.efficiency_ratio;
+  var avg = totals.avg_sponsored_fee;
+  el.innerHTML =
+    '<div class="sum-tile"><div class="sum-label">Efficiency ratio</div><div class="sum-value sv-purple">' + fmtRatio(eff) +
+    '</div><div class="sum-sub">Σ Final $ ÷ Σ LV (priced BOF)</div></div>' +
+    '<div class="sum-tile"><div class="sum-label">Avg sponsored fee</div><div class="sum-value sv-dollar">' + fmtMoney(avg) +
+    '</div><div class="sum-sub">Σ Final $ ÷ link count</div></div>' +
+    '<div class="sum-tile"><div class="sum-label">Priced BOF links</div><div class="sum-value sv-teal">' + fmt(totals.count) +
+    '</div><div class="sum-sub">Rows with FINAL $ filled</div></div>' +
+    '<div class="sum-tile"><div class="sum-label">Σ Final $</div><div class="sum-value sv-dollar">' + fmtMoney(totals.sum_final_usd) +
+    '</div><div class="sum-sub">All clients, ' + esc(BTF.join(", ")) + '</div></div>' +
+    '<div class="sum-tile"><div class="sum-label">Σ LV (priced)</div><div class="sum-value sv-teal">' + fmt(totals.sum_lv) +
+    '</div><div class="sum-sub">Same rows as cost</div></div>';
+  if (foot) {
+    foot.textContent =
+      "BOF statuses: " + BTF.join(", ") + ". Rows without a filled FINAL $ are excluded from these sums and counts; FINAL $ may be $0 (e.g. free placement). Internal HSS data only (HSS SeaTable OM).";
+  }
+}
+
+function renderSponsoredStrip(sp) {
+  if (!sp) sp = { sum_lv: 0, sum_final_usd: 0, count: 0, efficiency_ratio: null, avg_sponsored_fee: null };
+  var has = sp.count > 0;
+  var effCls = "sponsored-metric-val em";
+  var avgCls = "sponsored-metric-val sv-dollar";
+  if (!has) {
+    effCls = "sponsored-metric-val na";
+    avgCls = "sponsored-metric-val na";
+  }
+  return (
+    '<div class="sponsored-strip">' +
+      '<div class="sponsored-strip-head">' +
+        '<svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>' +
+        "Sponsored fees (priced BOF)" +
+      "</div>" +
+      '<div class="sponsored-metrics">' +
+        '<div><div class="sponsored-metric-label">Efficiency ratio</div><div class="' + effCls + '">' + fmtRatio(sp.efficiency_ratio) + "</div></div>" +
+        '<div><div class="sponsored-metric-label">Avg fee / link</div><div class="' + avgCls + '">' + (has ? fmtMoney(sp.avg_sponsored_fee) : "—") + "</div></div>" +
+        '<div><div class="sponsored-metric-label">Σ Final $</div><div class="sponsored-metric-val">' + (has ? fmtMoney(sp.sum_final_usd) : "—") + "</div></div>" +
+        '<div><div class="sponsored-metric-label">Links (priced)</div><div class="sponsored-metric-val">' + fmt(sp.count) + "</div></div>" +
+      "</div>" +
+    "</div>"
+  );
 }
 
 function renderInternal(clients) {
@@ -381,103 +411,11 @@ function renderInternal(clients) {
         '<div class="funnel-col"><div class="funnel-heading fh-btf"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>Bottom Funnel (published incl.)</div><div class="funnel-total ft-btf">'+fmt(btfTotal)+'</div><div class="status-list">'+btfRows+'</div></div>'+
         '<div class="funnel-col"><div class="funnel-heading fh-top"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--purple)"/></svg>Top Funnel</div><div class="funnel-total ft-top">'+fmt(topTotal)+'</div><div class="status-list">'+topRows+'</div></div>'+
       '</div>';
+    card.innerHTML += renderSponsoredStrip(c.sponsored);
     grid.appendChild(card);
   });
-}
 
-function renderCompany(clients) {
-  var totInt=0,totExt=0,totJourn=0,totQ=0;
-  clients.forEach(function(c) {
-    totInt   += n(c["Published"]);
-    totExt   += LBT_CLIENTS.indexOf(c["client"])>-1 ? n(c["ext_published"]) : 0;
-    totJourn += c["client"]===PRESS_CLIENT ? n(c["journalists"]) : 0;
-    totQ     += n(c["company_quota"]);
-  });
-  var total=totInt+totExt+totJourn, op=pct(total,totQ), pc=pcClass(op);
-
-  document.getElementById("summary-company").innerHTML =
-    '<div class="sum-tile"><div class="sum-label">Internal published</div><div class="sum-value sv-teal">'+fmt(totInt)+'</div></div>'+
-    '<div class="sum-tile"><div class="sum-label">External LBT</div><div class="sum-value sv-purple">'+fmt(totExt)+'</div></div>'+
-    '<div class="sum-tile"><div class="sum-label">Journalists</div><div class="sum-value sv-amber">'+fmt(totJourn)+'</div></div>'+
-    '<div class="sum-tile"><div class="sum-label">Company quota</div><div class="sum-value sv-neutral">'+fmt(totQ)+
-      '</div></div>'+
-    '<div class="sum-tile"><div class="sum-label">Quota attainment</div><div class="sum-value '+sumClass(pc)+'">'+op+'%</div></div>';
-
-  var grid=document.getElementById("grid-company");
-  grid.innerHTML="";
-  clients.forEach(function(c) {
-    var name=c["client"];
-    var hasExt   = LBT_CLIENTS.indexOf(name)>-1;
-    var hasJourn = name===PRESS_CLIENT;
-    var isSimple = !hasExt && !hasJourn;
-
-    var intPub=n(c["Published"]);
-    var extPub=hasExt?n(c["ext_published"]):0;
-    var journVal=hasJourn?n(c["journalists"]):0;
-    var cq=n(c["company_quota"]);
-    var total=intPub+extPub+journVal;
-    var p=pct(total,cq), pc=pcClass(p);
-
-    var sourcesHTML="";
-    if (isSimple) {
-      sourcesHTML='<div class="sources single"><div class="source-col">'+
-        '<div class="source-heading sh-internal"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>Internal published</div>'+
-        '<div class="source-total st-internal">'+fmt(intPub)+'</div><div class="source-sub">All links from internal team</div></div></div>';
-    } else {
-      var extHTML=hasExt
-        ?'<div class="source-total st-external">'+fmt(extPub)+'</div><div class="source-sub">Published only</div>'
-        :'<div class="source-total st-na">-</div><div class="source-sub">Not applicable</div>';
-
-      // Journalists column — only show for FanDuel (exact), hide entirely for others
-      if (hasExt && !hasJourn) {
-        // FanDuel Casino / Racing / CreditNinja: 2 columns only
-        sourcesHTML='<div class="sources" style="grid-template-columns:1fr 1fr">'+
-          '<div class="source-col"><div class="source-heading sh-internal"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>Internal</div><div class="source-total st-internal">'+fmt(intPub)+'</div><div class="source-sub">Published</div></div>'+
-          '<div class="source-col"><div class="source-heading sh-external"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--purple)"/></svg>External LBT</div>'+extHTML+'</div>'+
-          '</div>';
-      } else {
-        // FanDuel: 3 columns with Journalists
-        var journHTML='<div class="source-total st-journ">'+fmt(journVal)+'</div><div class="source-sub">From CMS Master</div>';
-        sourcesHTML='<div class="sources">'+
-          '<div class="source-col"><div class="source-heading sh-internal"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>Internal</div><div class="source-total st-internal">'+fmt(intPub)+'</div><div class="source-sub">Published</div></div>'+
-          '<div class="source-col"><div class="source-heading sh-external"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--purple)"/></svg>External LBT</div>'+extHTML+'</div>'+
-          '<div class="source-col"><div class="source-heading sh-journ"><svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--amber)"/></svg>Journalists</div>'+journHTML+'</div>'+
-          '</div>';
-      }
-    }
-
-    var card=document.createElement("div"); card.className="company-card";
-    card.innerHTML=
-      '<div class="card-header"><div class="client-name">'+esc(name)+'</div>'+
-        '<div class="quota-pill">quota <strong>'+fmt(cq)+'</strong></div></div>'+
-      '<div class="progress-wrap">'+
-        '<div class="progress-labels"><span>Total published vs company quota</span><span class="progress-pct ppc-'+pc+'">'+p+'% - '+fmt(total)+' / '+fmt(cq)+'</span></div>'+
-        '<div class="progress-track"><div class="progress-fill pf-'+pc+'" style="width:'+Math.min(p,100)+'%"></div></div></div>'+
-      sourcesHTML;
-    grid.appendChild(card);
-  });
-}
-
-function openModal() {
-  var stored=getQ();
-  document.getElementById("modal-rows").innerHTML=globalClients.map(function(c){
-    return '<div class="modal-row"><label class="modal-label">'+esc(c["client"])+'</label>'+
-      '<input class="modal-input" type="number" id="mq-'+esc(c["client"])+'" value="'+(stored[c["client"]]||"")+'" placeholder="0"></div>';
-  }).join("");
-  document.getElementById("modal-sub").textContent="Company quotas for "+
-    new Date().toLocaleString("en-US",{month:"long",year:"numeric"})+" - saved in browser memory";
-  document.getElementById("quota-modal").style.display="flex";
-}
-function closeModal() { document.getElementById("quota-modal").style.display="none"; }
-function saveQuotas() {
-  var stored={};
-  globalClients.forEach(function(c){
-    var inp=document.getElementById("mq-"+esc(c["client"]));
-    if(inp) stored[c["client"]]=parseFloat(inp.value)||0;
-  });
-  localStorage.setItem(SK_QUOTAS,JSON.stringify(stored));
-  closeModal();
-  renderCompany(globalClients);
+  renderSponsoredSummary(globalSponsoredTotals);
 }
 
 loadData();
