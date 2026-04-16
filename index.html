@@ -227,6 +227,15 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
         <table class="team-table" id="team-table-lv"></table>
       </div>
     </div>
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--amber)"/></svg>
+        Team performance — total cost of published links (2026)
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="team-table-cost"></table>
+      </div>
+    </div>
     <div class="clients-grid" id="grid-internal"></div>
   </div>
 </div>
@@ -288,6 +297,7 @@ async function loadData() {
     renderInternal(json.clients);
     renderTeamPerformance(globalTeamPerf, "team-table-count", "link_counts", false);
     renderTeamPerformance(globalTeamPerf, "team-table-lv", "link_values", true);
+    renderTeamPerformance(globalTeamPerf, "team-table-cost", "total_costs", "money");
 
     loadScreen.style.display = "none";
     dash.style.display = "block";
@@ -354,7 +364,7 @@ function renderInternal(clients) {
   renderSponsoredSummary(globalSponsoredTotals);
 }
 
-function renderTeamPerformance(perf, tableId, dataKey, isLV) {
+function renderTeamPerformance(perf, tableId, dataKey, formatType) {
   var table = document.getElementById(tableId);
   if (!perf || !table || !perf.members || perf.members.length === 0) {
     if (table) table.innerHTML = '<tbody><tr><td style="padding:20px;text-align:center;color:var(--muted);">No team data</td></tr></tbody>';
@@ -377,7 +387,16 @@ function renderTeamPerformance(perf, tableId, dataKey, isLV) {
     months.forEach(function(m) {
       var val = (data[member] && data[member][m]) ? data[member][m] : 0;
       var cls = val === 0 ? ' class="zero"' : '';
-      var display = val === 0 ? '—' : (isLV ? fmt(Math.round(val)) : val);
+      var display;
+      if (val === 0) {
+        display = '—';
+      } else if (formatType === "money") {
+        display = fmtMoney(val);
+      } else if (formatType === true) {
+        display = fmt(Math.round(val));
+      } else {
+        display = val;
+      }
       tbody += '<td' + cls + '>' + display + '</td>';
     });
     tbody += '</tr>';

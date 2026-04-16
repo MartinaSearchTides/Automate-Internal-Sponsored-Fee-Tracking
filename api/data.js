@@ -150,6 +150,8 @@ async function buildPayload(omToken) {
 
     // ── Team performance by month (Published only, year 2026 only) ──
     const teamByMonth = {};
+    const teamLvByMonth = {};
+    const teamCostByMonth = {};
     const allMonths = new Set();
 
     for (const row of omRows) {
@@ -165,8 +167,18 @@ async function buildPayload(omToken) {
       const pmYear = pm.includes("2026") ? 2026 : (pm.includes("2025") ? 2025 : null);
       if (pmYear !== 2026) continue;
       
+      const lv = parseFloat(row["LV"]) || 0;
+      const finalUsd = getFinalDollarValue(row);
+      
       if (!teamByMonth[team]) teamByMonth[team] = {};
+      if (!teamLvByMonth[team]) teamLvByMonth[team] = {};
+      if (!teamCostByMonth[team]) teamCostByMonth[team] = {};
+      
       teamByMonth[team][pm] = (teamByMonth[team][pm] || 0) + 1;
+      teamLvByMonth[team][pm] = (teamLvByMonth[team][pm] || 0) + lv;
+      if (finalUsd !== null) {
+        teamCostByMonth[team][pm] = (teamCostByMonth[team][pm] || 0) + finalUsd;
+      }
       allMonths.add(pm);
     }
 
@@ -226,7 +238,9 @@ async function buildPayload(omToken) {
       team_performance: {
         members: Object.keys(teamByMonth).sort(),
         months: monthsArray,
-        data: teamByMonth
+        link_counts: teamByMonth,
+        link_values: teamLvByMonth,
+        total_costs: teamCostByMonth
       },
       debug: {
         quotas_loaded: Object.keys(quotas).length,
