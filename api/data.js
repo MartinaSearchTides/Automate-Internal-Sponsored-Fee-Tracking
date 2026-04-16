@@ -148,14 +148,19 @@ async function buildPayload(omToken) {
       }
     }
 
-    // ── Team performance by month (Published only, year 2026 only) ──
+  // ── Team performance by month (Published only, year 2026 only) ──
   const teamByMonth = {};
   const teamLvByMonth = {};
   const teamCostByMonth = {};
   const teamAvgByMonth = {};
   const allMonths = new Set();
 
-    for (const row of omRows) {
+  // ── Client performance by month (Published only, year 2026 only) ──
+  const clientByMonth = {};
+  const clientLvByMonth = {};
+  const clientCostByMonth = {};
+
+  for (const row of omRows) {
       const status = row["STATUS 1"];
       if (status !== "Published") continue;
       
@@ -189,6 +194,23 @@ async function buildPayload(omToken) {
       teamAvgByMonth[team][pm].count += 1;
     }
     allMonths.add(pm);
+
+    const client = resolve(row["CLIENT*"] || row["Client*"] || row["client*"]);
+    if (client) {
+      if (!clientByMonth[client]) clientByMonth[client] = {};
+      if (!clientLvByMonth[client]) clientLvByMonth[client] = {};
+      if (!clientCostByMonth[client]) clientCostByMonth[client] = {};
+
+      if (!clientByMonth[client][pm]) clientByMonth[client][pm] = 0;
+      if (!clientLvByMonth[client][pm]) clientLvByMonth[client][pm] = 0;
+      if (!clientCostByMonth[client][pm]) clientCostByMonth[client][pm] = 0;
+
+      clientByMonth[client][pm] += 1;
+      clientLvByMonth[client][pm] += lv;
+      if (finalUsd !== null) {
+        clientCostByMonth[client][pm] += finalUsd;
+      }
+    }
   }
 
   const monthsArray = Array.from(allMonths).sort((a, b) => {
@@ -253,7 +275,7 @@ async function buildPayload(omToken) {
       avg_sponsored_fee: stAvg
     };
 
-    console.log("[buildPayload] Payload built: clients =", clients.length, ", sponsored links =", sponsored_totals.count, ", team members =", Object.keys(teamByMonth).length);
+    console.log("[buildPayload] Payload built: clients =", clients.length, ", sponsored links =", sponsored_totals.count, ", team members =", Object.keys(teamByMonth).length, ", client rows =", Object.keys(clientByMonth).length);
     return {
       ok: true,
       generated: new Date().toISOString(),
@@ -267,6 +289,13 @@ async function buildPayload(omToken) {
       total_costs: teamCostByMonth,
       avg_fees: avgFeesByMonth
     },
+      client_performance: {
+        members: Object.keys(clientByMonth).sort(),
+        months: monthsArray,
+        link_counts: clientByMonth,
+        link_values: clientLvByMonth,
+        total_costs: clientCostByMonth
+      },
       debug: {
         quotas_loaded: Object.keys(quotas).length,
         om_rows: omRows.length,

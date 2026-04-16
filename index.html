@@ -210,6 +210,7 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
   <div class="tabs">
     <div class="tab active" onclick="switchTab('fees')">Sponsored Fees</div>
     <div class="tab" onclick="switchTab('team')">OM Team</div>
+    <div class="tab" onclick="switchTab('client')">Client</div>
   </div>
   <div class="tab-content active" id="tab-fees">
     <div class="summary-sponsored-wrap">
@@ -260,19 +261,50 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
       </div>
     </div>
   </div>
+  <div class="tab-content" id="tab-client">
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--purple)"/></svg>
+        Published link count by client (2026)
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="client-table-count"></table>
+      </div>
+    </div>
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>
+        Published link value by client (2026)
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="client-table-lv"></table>
+      </div>
+    </div>
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--amber)"/></svg>
+        Total cost of published links by client (2026)
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="client-table-cost"></table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
 var globalClients = [];
 var globalSponsoredTotals = null;
 var globalTeamPerf = null;
+var globalClientPerf = null;
 
 function switchTab(tab) {
   document.querySelectorAll(".tab").forEach(function(t, i) {
-    t.classList.toggle("active", (tab === "fees" && i === 0) || (tab === "team" && i === 1));
+    t.classList.toggle("active", (tab === "fees" && i === 0) || (tab === "team" && i === 1) || (tab === "client" && i === 2));
   });
   document.getElementById("tab-fees").classList.toggle("active", tab === "fees");
   document.getElementById("tab-team").classList.toggle("active", tab === "team");
+  document.getElementById("tab-client").classList.toggle("active", tab === "client");
 }
 
 function n(v) { var x = parseFloat(v); return isNaN(x) ? 0 : x; }
@@ -321,6 +353,7 @@ async function loadData() {
     globalClients = json.clients;
     globalSponsoredTotals = json.sponsored_totals || null;
     globalTeamPerf = json.team_performance || null;
+    globalClientPerf = json.client_performance || null;
     var loaded = new Date(json.generated).toLocaleTimeString("en-US");
     document.getElementById("nav-meta").textContent = json.clients.length + " clients - " + json.prod_month + " - loaded " + loaded;
 
@@ -329,6 +362,9 @@ async function loadData() {
     renderTeamPerformance(globalTeamPerf, "team-table-lv", "link_values", true);
     renderTeamPerformance(globalTeamPerf, "team-table-cost", "total_costs", "money");
     renderTeamPerformance(globalTeamPerf, "team-table-avg", "avg_fees", "money");
+    renderTeamPerformance(globalClientPerf, "client-table-count", "link_counts", false);
+    renderTeamPerformance(globalClientPerf, "client-table-lv", "link_values", true);
+    renderTeamPerformance(globalClientPerf, "client-table-cost", "total_costs", "money");
 
     loadScreen.style.display = "none";
     dash.style.display = "block";
