@@ -212,10 +212,19 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
     <div class="team-performance-wrap">
       <div class="team-perf-title">
         <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--purple)"/></svg>
-        Team performance — published links by month
+        Team performance — published link count (2026)
       </div>
       <div class="team-table-scroll">
-        <table class="team-table" id="team-table"></table>
+        <table class="team-table" id="team-table-count"></table>
+      </div>
+    </div>
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--teal)"/></svg>
+        Team performance — published link value (2026)
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="team-table-lv"></table>
       </div>
     </div>
     <div class="clients-grid" id="grid-internal"></div>
@@ -277,7 +286,8 @@ async function loadData() {
     document.getElementById("nav-meta").textContent = json.clients.length + " clients - " + json.prod_month + " - loaded " + loaded;
 
     renderInternal(json.clients);
-    renderTeamPerformance(globalTeamPerf);
+    renderTeamPerformance(globalTeamPerf, "team-table-count", "link_counts", false);
+    renderTeamPerformance(globalTeamPerf, "team-table-lv", "link_values", true);
 
     loadScreen.style.display = "none";
     dash.style.display = "block";
@@ -344,8 +354,8 @@ function renderInternal(clients) {
   renderSponsoredSummary(globalSponsoredTotals);
 }
 
-function renderTeamPerformance(perf) {
-  var table = document.getElementById("team-table");
+function renderTeamPerformance(perf, tableId, dataKey, isLV) {
+  var table = document.getElementById(tableId);
   if (!perf || !table || !perf.members || perf.members.length === 0) {
     if (table) table.innerHTML = '<tbody><tr><td style="padding:20px;text-align:center;color:var(--muted);">No team data</td></tr></tbody>';
     return;
@@ -353,7 +363,7 @@ function renderTeamPerformance(perf) {
   
   var months = perf.months || [];
   var members = perf.members || [];
-  var data = perf.data || {};
+  var data = perf[dataKey] || {};
   
   var thead = '<thead><tr><th>Team member</th>';
   months.forEach(function(m) {
@@ -365,9 +375,10 @@ function renderTeamPerformance(perf) {
   members.forEach(function(member) {
     tbody += '<tr><td>' + esc(member) + '</td>';
     months.forEach(function(m) {
-      var count = (data[member] && data[member][m]) ? data[member][m] : 0;
-      var cls = count === 0 ? ' class="zero"' : '';
-      tbody += '<td' + cls + '>' + (count === 0 ? '—' : count) + '</td>';
+      var val = (data[member] && data[member][m]) ? data[member][m] : 0;
+      var cls = val === 0 ? ' class="zero"' : '';
+      var display = val === 0 ? '—' : (isLV ? fmt(Math.round(val)) : val);
+      tbody += '<td' + cls + '>' + display + '</td>';
     });
     tbody += '</tr>';
   });
