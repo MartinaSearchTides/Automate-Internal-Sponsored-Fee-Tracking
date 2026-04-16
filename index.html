@@ -424,12 +424,12 @@ function renderSponsoredSummary(totals) {
   var el = document.getElementById("summary-sponsored-internal");
   var foot = document.getElementById("sponsored-footnote-internal");
   if (!totals || !el) return;
-  var eff = totals.efficiency_ratio;
-  var avg = totals.avg_sponsored_fee;
+  var eff = totals.efficiency_ratio !== null ? totals.efficiency_ratio.toFixed(2) : "—";
+  var avg = totals.avg_sponsored_fee !== null ? totals.avg_sponsored_fee.toFixed(2) : "—";
   el.innerHTML =
-    '<div class="sum-tile"><div class="sum-label">Cost per LV</div><div class="sum-value sv-purple">' + fmtRatio(eff) +
+    '<div class="sum-tile"><div class="sum-label">Cost per LV</div><div class="sum-value sv-purple">' + eff +
     '</div><div class="sum-sub">Σ Final $ ÷ Σ LV</div></div>' +
-    '<div class="sum-tile"><div class="sum-label">Avg cost per link</div><div class="sum-value sv-dollar">' + fmtMoney(avg) +
+    '<div class="sum-tile"><div class="sum-label">Avg cost per link</div><div class="sum-value sv-dollar">$' + avg +
     '</div><div class="sum-sub">Σ Final $ ÷ count</div></div>' +
     '<div class="sum-tile"><div class="sum-label">Links (priced)</div><div class="sum-value sv-teal">' + fmt(totals.count) +
     '</div><div class="sum-sub">BOF with FINAL $ filled</div></div>' +
@@ -451,13 +451,16 @@ function renderInternal(clients) {
     var sp = c.sponsored || { sum_lv: 0, sum_final_usd: 0, count: 0, efficiency_ratio: null, avg_sponsored_fee: null };
     var has = sp.count > 0;
     
+    var effRatio = has && sp.efficiency_ratio !== null ? sp.efficiency_ratio.toFixed(2) : "—";
+    var avgFee = has && sp.avg_sponsored_fee !== null ? sp.avg_sponsored_fee.toFixed(2) : "—";
+    
     var card = document.createElement("div");
     card.className = "client-card";
     card.innerHTML =
       '<div class="card-header"><div class="client-name">' + esc(c.client) + '</div></div>' +
       '<div class="sponsored-metrics-card">' +
-        '<div class="spm-item"><div class="spm-label">Cost per LV</div><div class="spm-value ' + (has ? "spm-ratio" : "spm-na") + '">' + (has ? fmtRatio(sp.efficiency_ratio) : "—") + '</div><div class="spm-sub">Σ Final $ ÷ Σ LV</div></div>' +
-        '<div class="spm-item"><div class="spm-label">Avg cost per link</div><div class="spm-value ' + (has ? "" : "spm-na") + '">' + (has ? fmtMoney(sp.avg_sponsored_fee) : "—") + '</div><div class="spm-sub">Σ Final $ ÷ count</div></div>' +
+        '<div class="spm-item"><div class="spm-label">Cost per LV</div><div class="spm-value ' + (has ? "spm-ratio" : "spm-na") + '">' + effRatio + '</div><div class="spm-sub">Σ Final $ ÷ Σ LV</div></div>' +
+        '<div class="spm-item"><div class="spm-label">Avg cost per link</div><div class="spm-value ' + (has ? "" : "spm-na") + '">$' + avgFee + '</div><div class="spm-sub">Σ Final $ ÷ count</div></div>' +
         '<div class="spm-item"><div class="spm-label">Σ Final $</div><div class="spm-value">' + (has ? fmtMoney(sp.sum_final_usd) : "—") + '</div><div class="spm-sub">Total cost</div></div>' +
         '<div class="spm-item"><div class="spm-label">Links (priced)</div><div class="spm-value spm-count">' + fmt(sp.count) + '</div><div class="spm-sub">BOF with FINAL $</div></div>' +
       '</div>';
