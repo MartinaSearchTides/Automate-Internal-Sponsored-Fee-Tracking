@@ -153,12 +153,15 @@ async function buildPayload(omToken) {
   const teamLvByMonth = {};
   const teamCostByMonth = {};
   const teamAvgByMonth = {};
+  const teamAvgLvByMonth = {};
   const allMonths = new Set();
 
   // ── Client performance by month (Published only, year 2026 only) ──
   const clientByMonth = {};
   const clientLvByMonth = {};
   const clientCostByMonth = {};
+  const clientAvgByMonth = {};
+  const clientAvgLvByMonth = {};
 
   for (const row of omRows) {
       const status = row["STATUS 1"];
@@ -180,11 +183,13 @@ async function buildPayload(omToken) {
     if (!teamLvByMonth[team]) teamLvByMonth[team] = {};
     if (!teamCostByMonth[team]) teamCostByMonth[team] = {};
     if (!teamAvgByMonth[team]) teamAvgByMonth[team] = {};
+    if (!teamAvgLvByMonth[team]) teamAvgLvByMonth[team] = {};
 
     if (!teamByMonth[team][pm]) teamByMonth[team][pm] = 0;
     if (!teamLvByMonth[team][pm]) teamLvByMonth[team][pm] = 0;
     if (!teamCostByMonth[team][pm]) teamCostByMonth[team][pm] = 0;
     if (!teamAvgByMonth[team][pm]) teamAvgByMonth[team][pm] = { sum: 0, count: 0 };
+    if (!teamAvgLvByMonth[team][pm]) teamAvgLvByMonth[team][pm] = { sum: 0, sumLv: 0 };
 
     teamByMonth[team][pm] += 1;
     teamLvByMonth[team][pm] += lv;
@@ -192,6 +197,8 @@ async function buildPayload(omToken) {
       teamCostByMonth[team][pm] += finalUsd;
       teamAvgByMonth[team][pm].sum += finalUsd;
       teamAvgByMonth[team][pm].count += 1;
+      teamAvgLvByMonth[team][pm].sum += finalUsd;
+      teamAvgLvByMonth[team][pm].sumLv += lv;
     }
     allMonths.add(pm);
 
@@ -200,15 +207,23 @@ async function buildPayload(omToken) {
       if (!clientByMonth[client]) clientByMonth[client] = {};
       if (!clientLvByMonth[client]) clientLvByMonth[client] = {};
       if (!clientCostByMonth[client]) clientCostByMonth[client] = {};
+      if (!clientAvgByMonth[client]) clientAvgByMonth[client] = {};
+      if (!clientAvgLvByMonth[client]) clientAvgLvByMonth[client] = {};
 
       if (!clientByMonth[client][pm]) clientByMonth[client][pm] = 0;
       if (!clientLvByMonth[client][pm]) clientLvByMonth[client][pm] = 0;
       if (!clientCostByMonth[client][pm]) clientCostByMonth[client][pm] = 0;
+      if (!clientAvgByMonth[client][pm]) clientAvgByMonth[client][pm] = { sum: 0, count: 0 };
+      if (!clientAvgLvByMonth[client][pm]) clientAvgLvByMonth[client][pm] = { sum: 0, sumLv: 0 };
 
       clientByMonth[client][pm] += 1;
       clientLvByMonth[client][pm] += lv;
       if (finalUsd !== null) {
         clientCostByMonth[client][pm] += finalUsd;
+        clientAvgByMonth[client][pm].sum += finalUsd;
+        clientAvgByMonth[client][pm].count += 1;
+        clientAvgLvByMonth[client][pm].sum += finalUsd;
+        clientAvgLvByMonth[client][pm].sumLv += lv;
       }
     }
   }
@@ -220,11 +235,36 @@ async function buildPayload(omToken) {
   });
 
   const avgFeesByMonth = {};
+  const avgFeesPerLvByMonth = {};
   for (const member in teamAvgByMonth) {
     avgFeesByMonth[member] = {};
     for (const month in teamAvgByMonth[member]) {
       const data = teamAvgByMonth[member][month];
       avgFeesByMonth[member][month] = data.count > 0 ? data.sum / data.count : 0;
+    }
+  }
+  for (const member in teamAvgLvByMonth) {
+    avgFeesPerLvByMonth[member] = {};
+    for (const month in teamAvgLvByMonth[member]) {
+      const data = teamAvgLvByMonth[member][month];
+      avgFeesPerLvByMonth[member][month] = data.sumLv > 0 ? data.sum / data.sumLv : 0;
+    }
+  }
+
+  const clientAvgFeesByMonth = {};
+  const clientAvgFeesPerLvByMonth = {};
+  for (const client in clientAvgByMonth) {
+    clientAvgFeesByMonth[client] = {};
+    for (const month in clientAvgByMonth[client]) {
+      const data = clientAvgByMonth[client][month];
+      clientAvgFeesByMonth[client][month] = data.count > 0 ? data.sum / data.count : 0;
+    }
+  }
+  for (const client in clientAvgLvByMonth) {
+    clientAvgFeesPerLvByMonth[client] = {};
+    for (const month in clientAvgLvByMonth[client]) {
+      const data = clientAvgLvByMonth[client][month];
+      clientAvgFeesPerLvByMonth[client][month] = data.sumLv > 0 ? data.sum / data.sumLv : 0;
     }
   }
 
@@ -287,14 +327,17 @@ async function buildPayload(omToken) {
       link_counts: teamByMonth,
       link_values: teamLvByMonth,
       total_costs: teamCostByMonth,
-      avg_fees: avgFeesByMonth
+      avg_fees: avgFeesByMonth,
+      avg_fees_per_lv: avgFeesPerLvByMonth
     },
       client_performance: {
         members: Object.keys(clientByMonth).sort(),
         months: monthsArray,
         link_counts: clientByMonth,
         link_values: clientLvByMonth,
-        total_costs: clientCostByMonth
+        total_costs: clientCostByMonth,
+        avg_fees: clientAvgFeesByMonth,
+        avg_fees_per_lv: clientAvgFeesPerLvByMonth
       },
       debug: {
         quotas_loaded: Object.keys(quotas).length,

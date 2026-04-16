@@ -260,6 +260,15 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
         <table class="team-table" id="team-table-avg"></table>
       </div>
     </div>
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--blue)"/></svg>
+        Average sponsored fee per link value by team member (2026)
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="team-table-avg-lv"></table>
+      </div>
+    </div>
   </div>
   <div class="tab-content" id="tab-client">
     <div class="team-performance-wrap">
@@ -287,6 +296,24 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
       </div>
       <div class="team-table-scroll">
         <table class="team-table" id="client-table-cost"></table>
+      </div>
+    </div>
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--green)"/></svg>
+        Average sponsored fee per link count by client (2026)
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="client-table-avg"></table>
+      </div>
+    </div>
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--blue)"/></svg>
+        Average sponsored fee per link value by client (2026)
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="client-table-avg-lv"></table>
       </div>
     </div>
   </div>
@@ -362,9 +389,12 @@ async function loadData() {
     renderTeamPerformance(globalTeamPerf, "team-table-lv", "link_values", true);
     renderTeamPerformance(globalTeamPerf, "team-table-cost", "total_costs", "money");
     renderTeamPerformance(globalTeamPerf, "team-table-avg", "avg_fees", "money");
+    renderTeamPerformance(globalTeamPerf, "team-table-avg-lv", "avg_fees_per_lv", "ratio");
     renderTeamPerformance(globalClientPerf, "client-table-count", "link_counts", false);
     renderTeamPerformance(globalClientPerf, "client-table-lv", "link_values", true);
     renderTeamPerformance(globalClientPerf, "client-table-cost", "total_costs", "money");
+    renderTeamPerformance(globalClientPerf, "client-table-avg", "avg_fees", "money");
+    renderTeamPerformance(globalClientPerf, "client-table-avg-lv", "avg_fees_per_lv", "ratio");
 
     loadScreen.style.display = "none";
     dash.style.display = "block";
@@ -459,6 +489,8 @@ function renderTeamPerformance(perf, tableId, dataKey, formatType) {
         display = '—';
       } else if (formatType === "money") {
         display = fmtMoney(val);
+      } else if (formatType === "ratio") {
+        display = fmtRatio(val);
       } else if (formatType === true) {
         display = fmt(Math.round(val));
       } else {
