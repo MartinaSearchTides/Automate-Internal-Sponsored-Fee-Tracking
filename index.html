@@ -97,6 +97,31 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 .sv-dollar { color: var(--text); }
 .sum-sub { font-size: 11px; font-family: var(--fm); color: var(--muted); margin-top: 8px; font-weight: 400; letter-spacing: 0; text-transform: none; }
 
+.team-performance-wrap { margin-bottom: 1.75rem; }
+.team-perf-title {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; font-family: var(--fm);
+  color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.team-table-scroll { overflow-x: auto; border: 1px solid var(--border2); border-radius: 8px; }
+.team-table { width: 100%; border-collapse: collapse; background: var(--surface); font-family: var(--fm); font-size: 13px; }
+.team-table thead { background: var(--surface2); }
+.team-table th {
+  padding: 12px 16px; text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border2); white-space: nowrap;
+}
+.team-table th:first-child { position: sticky; left: 0; background: var(--surface2); z-index: 2; }
+.team-table td {
+  padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text);
+  font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap;
+}
+.team-table td:first-child {
+  text-align: left; font-weight: 500; position: sticky; left: 0; background: var(--surface); z-index: 1;
+  border-right: 1px solid var(--border2);
+}
+.team-table tbody tr:hover { background: var(--surface2); }
+.team-table tbody tr:hover td:first-child { background: var(--surface2); }
+.team-table td.zero { color: var(--muted); }
+
 .sponsored-strip { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
 
 .client-card { background: var(--surface); display: flex; flex-direction: column; }
@@ -122,6 +147,8 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
   .summary-bar  { grid-template-columns: repeat(2,1fr); }
   .summary-bar.summary-sponsored { grid-template-columns: repeat(2, 1fr); }
   .sponsored-metrics-card { grid-template-columns: 1fr; }
+  .team-table th, .team-table td { padding: 10px 12px; font-size: 12px; }
+  .team-table th { font-size: 9px; }
 }
 
 @media (max-width: 640px) {
@@ -144,6 +171,8 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
   .spm-label { font-size: 9px; }
   .spm-value { font-size: 22px; }
   .spm-sub { font-size: 10px; }
+  .team-table th, .team-table td { padding: 8px 10px; font-size: 11px; }
+  .team-table th { font-size: 8px; }
   .load-title { font-size: 36px; text-align: center; }
   .load-wordmark { font-size: 11px; }
 }
@@ -180,6 +209,15 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
       <div class="summary-bar summary-sponsored" id="summary-sponsored-internal"></div>
       <p class="sponsored-footnote" id="sponsored-footnote-internal"></p>
     </div>
+    <div class="team-performance-wrap">
+      <div class="team-perf-title">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="var(--purple)"/></svg>
+        Team performance — published links by month
+      </div>
+      <div class="team-table-scroll">
+        <table class="team-table" id="team-table"></table>
+      </div>
+    </div>
     <div class="clients-grid" id="grid-internal"></div>
   </div>
 </div>
@@ -187,6 +225,7 @@ body { font-family: var(--fs); background: var(--bg); color: var(--text); min-he
 <script>
 var globalClients = [];
 var globalSponsoredTotals = null;
+var globalTeamPerf = null;
 
 function n(v) { var x = parseFloat(v); return isNaN(x) ? 0 : x; }
 function fmt(v) { return Math.round(v||0).toLocaleString("en-US"); }
@@ -233,10 +272,12 @@ async function loadData() {
 
     globalClients = json.clients;
     globalSponsoredTotals = json.sponsored_totals || null;
+    globalTeamPerf = json.team_performance || null;
     var loaded = new Date(json.generated).toLocaleTimeString("en-US");
     document.getElementById("nav-meta").textContent = json.clients.length + " clients - " + json.prod_month + " - loaded " + loaded;
 
     renderInternal(json.clients);
+    renderTeamPerformance(globalTeamPerf);
 
     loadScreen.style.display = "none";
     dash.style.display = "block";
@@ -301,6 +342,38 @@ function renderInternal(clients) {
   });
 
   renderSponsoredSummary(globalSponsoredTotals);
+}
+
+function renderTeamPerformance(perf) {
+  var table = document.getElementById("team-table");
+  if (!perf || !table || !perf.members || perf.members.length === 0) {
+    if (table) table.innerHTML = '<tbody><tr><td style="padding:20px;text-align:center;color:var(--muted);">No team data</td></tr></tbody>';
+    return;
+  }
+  
+  var months = perf.months || [];
+  var members = perf.members || [];
+  var data = perf.data || {};
+  
+  var thead = '<thead><tr><th>Team member</th>';
+  months.forEach(function(m) {
+    thead += '<th>' + esc(m) + '</th>';
+  });
+  thead += '</tr></thead>';
+  
+  var tbody = '<tbody>';
+  members.forEach(function(member) {
+    tbody += '<tr><td>' + esc(member) + '</td>';
+    months.forEach(function(m) {
+      var count = (data[member] && data[member][m]) ? data[member][m] : 0;
+      var cls = count === 0 ? ' class="zero"' : '';
+      tbody += '<td' + cls + '>' + (count === 0 ? '—' : count) + '</td>';
+    });
+    tbody += '</tr>';
+  });
+  tbody += '</tbody>';
+  
+  table.innerHTML = thead + tbody;
 }
 
 loadData();

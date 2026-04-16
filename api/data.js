@@ -144,6 +144,31 @@ async function buildPayload(omToken) {
       }
     }
 
+    // ── Team performance by month (all OM rows, not filtered by current month) ──
+    const teamByMonth = {}; // { teamName: { "Jan 2026": count, "Feb 2026": count, ... } }
+    const allMonths = new Set();
+
+    for (const row of omRows) {
+      const status = row["STATUS 1"];
+      if (status !== "Published") continue;
+      
+      const team = resolve(row["TEAM"] || row["Team"] || row["team"]);
+      if (!team) continue;
+
+      const pm = (row["Prod Month"] || "").trim();
+      if (!pm) continue;
+      
+      if (!teamByMonth[team]) teamByMonth[team] = {};
+      teamByMonth[team][pm] = (teamByMonth[team][pm] || 0) + 1;
+      allMonths.add(pm);
+    }
+
+    const monthsArray = Array.from(allMonths).sort((a, b) => {
+      const dA = new Date(a + " 01");
+      const dB = new Date(b + " 01");
+      return dA - dB;
+    });
+
     const allClients = [...new Set([...Object.keys(internal), ...Object.keys(quotas)])].sort();
 
     const clients = allClients.map(name => {
@@ -185,12 +210,17 @@ async function buildPayload(omToken) {
       avg_sponsored_fee: stAvg
     };
 
-    console.log("[buildPayload] Payload built: clients =", clients.length, ", sponsored links =", sponsored_totals.count);
+    console.log("[buildPayload] Payload built: clients =", clients.length, ", sponsored links =", sponsored_totals.count, ", team members =", Object.keys(teamByMonth).length);
     return {
       ok: true,
       generated: new Date().toISOString(),
       prod_month: PM,
       sponsored_totals,
+      team_performance: {
+        members: Object.keys(teamByMonth).sort(),
+        months: monthsArray,
+        data: teamByMonth
+      },
       debug: {
         quotas_loaded: Object.keys(quotas).length,
         om_rows: omRows.length,
