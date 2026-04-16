@@ -113,7 +113,7 @@ async function buildPayload(omToken) {
       if (mOk && yOk) quotas[client] = parseFloat(quotaVal) || 0;
     }
 
-    // ── Internal OM LV + sponsored fee aggregates (BOF rows with filled FINAL $ only) ──
+    // ── Internal OM LV + sponsored fee aggregates (BOF rows with filled FINAL $, year 2026 only) ──
     const internal = {};
     const sponsoredByClient = {};
     const sponsoredTotals = { sum_lv: 0, sum_cost: 0, count: 0 };
@@ -123,7 +123,11 @@ async function buildPayload(omToken) {
       const status = row["STATUS 1"];
       const lv     = parseFloat(row["LV"]) || 0;
       const pm     = (row["Prod Month"] || "").trim();
-      if (pm !== PM) continue;
+      if (!pm) continue;
+      
+      const pmYear = pm.includes("2026") ? 2026 : (pm.includes("2025") ? 2025 : null);
+      if (pmYear !== 2026) continue;
+      
       if (!client || !ALL_STATUSES.includes(status)) continue;
       if (!internal[client]) internal[client] = {};
       internal[client][status] = (internal[client][status] || 0) + lv;
@@ -144,8 +148,8 @@ async function buildPayload(omToken) {
       }
     }
 
-    // ── Team performance by month (all OM rows, not filtered by current month) ──
-    const teamByMonth = {}; // { teamName: { "Jan 2026": count, "Feb 2026": count, ... } }
+    // ── Team performance by month (Published only, year 2026 only) ──
+    const teamByMonth = {};
     const allMonths = new Set();
 
     for (const row of omRows) {
@@ -157,6 +161,9 @@ async function buildPayload(omToken) {
 
       const pm = (row["Prod Month"] || "").trim();
       if (!pm) continue;
+      
+      const pmYear = pm.includes("2026") ? 2026 : (pm.includes("2025") ? 2025 : null);
+      if (pmYear !== 2026) continue;
       
       if (!teamByMonth[team]) teamByMonth[team] = {};
       teamByMonth[team][pm] = (teamByMonth[team][pm] || 0) + 1;
