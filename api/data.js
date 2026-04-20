@@ -116,8 +116,9 @@ async function buildPayload(omToken) {
     // ── Internal OM LV + sponsored fee aggregates (BOF rows with filled FINAL $, CURRENT MONTH only for sponsored) ──
     const now = new Date();
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const currentMonth = months[now.getMonth()] + " " + now.getFullYear();
-    console.log("[✓] Current month for sponsored fees:", currentMonth);
+    const currentMonthName = months[now.getMonth()];
+    const currentYear = 2026; // Dashboard is for 2026 data
+    console.log("[✓] Filtering sponsored fees for:", currentMonthName, currentYear);
 
     const internal = {};
     const sponsoredByClient = {};
@@ -137,7 +138,10 @@ async function buildPayload(omToken) {
       if (!internal[client]) internal[client] = {};
       internal[client][status] = (internal[client][status] || 0) + lv;
 
-      if (BTF.includes(status) && pm === currentMonth) {
+      // Check if this row is for current month (e.g., "April 2026" includes "April")
+      const isCurrentMonth = pm.includes(currentMonthName) && pm.includes(String(currentYear));
+      
+      if (BTF.includes(status) && isCurrentMonth) {
         const finalUsd = getFinalDollarValue(row);
         if (finalUsd !== null) {
           if (!sponsoredByClient[client]) {
