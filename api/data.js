@@ -117,7 +117,7 @@ async function buildPayload(omToken) {
     const now = new Date();
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const currentMonthName = months[now.getMonth()];
-    const currentYear = 2026; // Dashboard is for 2026 data
+    const currentYear = now.getFullYear();
     console.log("[✓] Filtering sponsored fees for:", currentMonthName, currentYear);
 
     const internal = {};
