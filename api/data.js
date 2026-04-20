@@ -138,8 +138,13 @@ async function buildPayload(omToken) {
       if (!internal[client]) internal[client] = {};
       internal[client][status] = (internal[client][status] || 0) + lv;
 
-      // Check if this row is for current month (e.g., "April 2026" includes "April")
+      // Check if this row is for current month (e.g., "April 2026" or "Apr 2026")
       const isCurrentMonth = pm.includes(currentMonthName) && pm.includes(String(currentYearNum));
+      
+      // Debug first 5 rows to see format
+      if (sponsoredTotals.count < 5) {
+        console.log("[DEBUG] Row PM:", pm, "| CurrentMonth:", currentMonthName, currentYearNum, "| Match:", isCurrentMonth, "| Status:", status, "| BTF:", BTF.includes(status));
+      }
       
       if (BTF.includes(status) && isCurrentMonth) {
         const finalUsd = getFinalDollarValue(row);
