@@ -115,10 +115,9 @@ async function buildPayload(omToken) {
 
     // ── Internal OM LV + sponsored fee aggregates (BOF rows with filled FINAL $, CURRENT MONTH only for sponsored) ──
     const now = new Date();
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const currentMonthName = months[now.getMonth()];
-    const currentYearNum = now.getFullYear();
-    console.log("[✓] Filtering sponsored fees for:", currentMonthName, currentYearNum);
+    const currentMonthShort = now.toLocaleString("en-US", { month: "short" }); // "Apr"
+    const currentYearNum = now.getFullYear(); // 2026
+    console.log("[✓] Filtering sponsored fees for:", currentMonthShort, currentYearNum);
 
     const internal = {};
     const sponsoredByClient = {};
@@ -138,13 +137,8 @@ async function buildPayload(omToken) {
       if (!internal[client]) internal[client] = {};
       internal[client][status] = (internal[client][status] || 0) + lv;
 
-      // Check if this row is for current month (e.g., "April 2026" or "Apr 2026")
-      const isCurrentMonth = pm.includes(currentMonthName) && pm.includes(String(currentYearNum));
-      
-      // Debug first 5 rows to see format
-      if (sponsoredTotals.count < 5) {
-        console.log("[DEBUG] Row PM:", pm, "| CurrentMonth:", currentMonthName, currentYearNum, "| Match:", isCurrentMonth, "| Status:", status, "| BTF:", BTF.includes(status));
-      }
+      // Check if this row is for current month (e.g., "Apr 2026")
+      const isCurrentMonth = pm.includes(currentMonthShort) && pm.includes(String(currentYearNum));
       
       if (BTF.includes(status) && isCurrentMonth) {
         const finalUsd = getFinalDollarValue(row);
