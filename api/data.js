@@ -117,8 +117,8 @@ async function buildPayload(omToken) {
     const now = new Date();
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const currentMonthName = months[now.getMonth()];
-    const currentYear = now.getFullYear();
-    console.log("[✓] Filtering sponsored fees for:", currentMonthName, currentYear);
+    const currentYearNum = now.getFullYear();
+    console.log("[✓] Filtering sponsored fees for:", currentMonthName, currentYearNum);
 
     const internal = {};
     const sponsoredByClient = {};
@@ -139,7 +139,7 @@ async function buildPayload(omToken) {
       internal[client][status] = (internal[client][status] || 0) + lv;
 
       // Check if this row is for current month (e.g., "April 2026" includes "April")
-      const isCurrentMonth = pm.includes(currentMonthName) && pm.includes(String(currentYear));
+      const isCurrentMonth = pm.includes(currentMonthName) && pm.includes(String(currentYearNum));
       
       if (BTF.includes(status) && isCurrentMonth) {
         const finalUsd = getFinalDollarValue(row);
